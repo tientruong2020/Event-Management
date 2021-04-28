@@ -51,6 +51,7 @@ public class BottomNavbarActivity extends AppCompatActivity {
                         case R.id.navigation_profile:
                             selectedFragment = new ProfileFragment();
                             break;
+
                     }
                     getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
                     return true;
