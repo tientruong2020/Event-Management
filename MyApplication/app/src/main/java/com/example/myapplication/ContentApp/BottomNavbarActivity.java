@@ -5,6 +5,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.view.View;
 import com.example.myapplication.AddEventFragment;
 import com.example.myapplication.CalendarFragment;
 import com.example.myapplication.HomeFragment;
+import com.example.myapplication.MainActivity;
 import com.example.myapplication.ProfileFragment;
 import com.example.myapplication.R;
 import com.example.myapplication.SearchFragment;
@@ -22,11 +24,13 @@ public class BottomNavbarActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_bottom_navbar);
-
+        Intent intent = getIntent();
+        Boolean isLogin = intent.getBooleanExtra("isLogin",false);
         BottomNavigationView toolbar = findViewById(R.id.bottomnavigation);
         toolbar.setOnNavigationItemSelectedListener(navlistener);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new HomeFragment()).commit();
+
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navlistener =
@@ -57,4 +61,8 @@ public class BottomNavbarActivity extends AppCompatActivity {
                     return true;
                 }
             };
+    public void backToStart(){
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
 }

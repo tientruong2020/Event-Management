@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.myapplication.ContentApp.BottomNavbarActivity;
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -44,7 +45,9 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(intent);
     }
     public void goToHome(){
-        Intent intent = new Intent(this, BottomNavigationView.class);
+        Intent intent = new Intent(this, BottomNavbarActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
+        finish();
     }
 }
