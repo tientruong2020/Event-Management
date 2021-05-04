@@ -14,6 +14,8 @@ import android.widget.Toast;
 import com.example.myapplication.Auth.HomeActivity;
 import com.example.myapplication.Auth.LoginActivity;
 import com.example.myapplication.Auth.SignupActivity;
+import com.example.myapplication.ContentApp.BottomNavbarActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 //google
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -105,8 +107,9 @@ private void signIn(){
             GoogleSignInAccount acc = completedTask.getResult(ApiException.class);
             Toast.makeText(MainActivity.this,"Signed In Successfully",Toast.LENGTH_SHORT).show();
             FirebaseGoogleAuth(acc);
-            Intent intToHome = new Intent(MainActivity.this, HomeActivity.class);
-            startActivity(intToHome);
+//            Intent intToHome = new Intent(MainActivity.this, HomeActivity.class);
+//            startActivity(intToHome);
+//            goToHome();
         }
         catch (ApiException e){
             Toast.makeText(MainActivity.this,"Sign In Failed",Toast.LENGTH_SHORT).show();
@@ -125,8 +128,9 @@ private void signIn(){
                         Toast.makeText(MainActivity.this, "Successful", Toast.LENGTH_SHORT).show();
                         FirebaseUser user = mAuth.getCurrentUser();
                         updateUI(user);
-                        Intent intToHome = new Intent(MainActivity.this, HomeActivity.class);
-                        startActivity(intToHome);
+//                        Intent intToHome = new Intent(MainActivity.this, HomeActivity.class);
+//                        startActivity(intToHome);
+                        goToHome();
                     } else {
                         Toast.makeText(MainActivity.this, "Failed", Toast.LENGTH_SHORT).show();
                         updateUI(null);
@@ -164,5 +168,11 @@ private void signIn(){
     public void openSignupActivity(){
         Intent intent = new Intent(this, SignupActivity.class);
         startActivity(intent);
+    }
+    public void goToHome(){
+        Intent intent = new Intent(this, BottomNavbarActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 }

@@ -48,8 +48,9 @@ public class LoginActivity extends AppCompatActivity {
                 FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
                 if( mFirebaseUser != null ){
                     Toast.makeText(LoginActivity.this,"You are logged in",Toast.LENGTH_SHORT).show();
-                    Intent i = new Intent(LoginActivity.this, HomeActivity.class);
-                    startActivity(i);
+//                    Intent i = new Intent(LoginActivity.this, HomeActivity.class);
+//                    startActivity(i);
+                    goToHome();
                 }
                 else{
                     Toast.makeText(LoginActivity.this,"Please Login",Toast.LENGTH_SHORT).show();
@@ -81,8 +82,9 @@ public class LoginActivity extends AppCompatActivity {
                                 Toast.makeText(LoginActivity.this,"Login Error, Please Login Again",Toast.LENGTH_SHORT).show();
                             }
                             else{
-                                Intent intToHome = new Intent(LoginActivity.this, HomeActivity.class);
-                                startActivity(intToHome);
+//                                Intent intToHome = new Intent(LoginActivity.this, HomeActivity.class);
+//                                startActivity(intToHome);
+                                goToHome();
                             }
                         }
                     });
@@ -118,12 +120,12 @@ public class LoginActivity extends AppCompatActivity {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
-//    public void goToHome(){
-//        Intent intent = new Intent(this, BottomNavbarActivity.class);
-//        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | intent.FLAG_ACTIVITY_CLEAR_TOP);
-//        startActivity(intent);
-//        finish();
-//    }
+    public void goToHome(){
+        Intent intent = new Intent(this, BottomNavbarActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
+    }
     //    Login
     @Override
     protected void onStart() {
