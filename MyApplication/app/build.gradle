@@ -43,6 +43,7 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.firebase:firebase-auth:20.0.4'
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
+    implementation 'com.squareup.picasso:picasso:2.71828'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
@@ -50,4 +51,8 @@ dependencies {
     //firebase
     implementation platform('com.google.firebase:firebase-bom:27.1.0')
     implementation 'com.google.firebase:firebase-analytics'
+
+    //facebook
+    implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.squareup.picasso:picasso:2.71828'
 }
