@@ -41,16 +41,21 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.google.firebase:firebase-auth:20.0.4'
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.google.firebase:firebase-database:19.7.0'
+    implementation 'com.google.firebase:firebase-functions:19.0.2'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     //firebase
+    implementation 'com.google.firebase:firebase-auth:20.0.4'
     implementation platform('com.google.firebase:firebase-bom:27.1.0')
     implementation 'com.google.firebase:firebase-analytics'
+//    implementation 'com.google.firebase:firebase-database:20.0.4'
+//    implementation 'com.google.firebase:firebase-firestore:20.0.4'
+//    implementation 'com.google.firebase:firebase-storage:20.0.4'
 
     //facebook
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
