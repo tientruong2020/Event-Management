@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -63,36 +64,11 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pwd)){
                     Toast.makeText(LoginActivity.this, "Empty Credentials!", Toast.LENGTH_SHORT).show();
+                } else if (!validEmail(email)){
+                    Toast.makeText(LoginActivity.this,"Wrong Email!",Toast.LENGTH_SHORT).show();
                 } else {
                     loginUser(email, pwd);
                 }
-//                if(email.isEmpty()){
-//                    emailId.setError("Please enter your email");
-//                    emailId.requestFocus();
-//                }
-//                else  if(pwd.isEmpty()){
-//                    password.setError("Please enter your password");
-//                    password.requestFocus();
-//                }
-//                else  if(email.isEmpty() && pwd.isEmpty()){
-//                    Toast.makeText(LoginActivity.this,"Fields Are Empty!",Toast.LENGTH_SHORT).show();
-//                }
-//                else  if(!(email.isEmpty() && pwd.isEmpty())){
-//                    mFirebaseAuth.signInWithEmailAndPassword(email, pwd).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-//                        @Override
-//                        public void onComplete(@NonNull Task<AuthResult> task) {
-//                            if(!task.isSuccessful()){
-//                                Toast.makeText(LoginActivity.this,"Login Error, Please Login Again",Toast.LENGTH_SHORT).show();
-//                            }
-//                            else{
-//                                goToHome();
-//                            }
-//                        }
-//                    });
-//                }
-//                else{
-//                    Toast.makeText(LoginActivity.this,"Error Occurred!",Toast.LENGTH_SHORT).show();
-//                }
             }
         });
 //        End Login
@@ -119,13 +95,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //    Login
-    private void loginUser(String userEmail, String userPassword){
+    private void loginUser(String userEmail, String userPassword) {
 
         mFirebaseAuth.signInWithEmailAndPassword(userEmail, userPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(LoginActivity.this, "Update the profile "+"for better experience", Toast.LENGTH_SHORT).show();
+                if (task.isSuccessful()) {
+                    Toast.makeText(LoginActivity.this, "Update the profile " + "for better experience", Toast.LENGTH_SHORT).show();
                     goToHome();
                 }
             }
@@ -135,5 +111,9 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private boolean validEmail(String userEmail){
+        return Patterns.EMAIL_ADDRESS.matcher(userEmail).matches();
     }
 }

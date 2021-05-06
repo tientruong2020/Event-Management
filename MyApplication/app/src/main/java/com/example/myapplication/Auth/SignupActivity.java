@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -50,6 +51,10 @@ public class SignupActivity extends AppCompatActivity {
         mRootRef = FirebaseDatabase.getInstance().getReference();
         pd = new ProgressDialog(this);
         btnSignUp = findViewById(R.id.button2);
+        String email = emailId.getText().toString();
+        String pwd = password.getText().toString();
+        String fullname = fullName.getText().toString();
+        String pwd2 = confirmPW.getText().toString();
         btnSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -63,36 +68,24 @@ public class SignupActivity extends AppCompatActivity {
                     Toast.makeText(SignupActivity.this, "Password too short", Toast.LENGTH_SHORT).show();
                 } else if (!pwd.equals(cfpwd)){
                     Toast.makeText(SignupActivity.this, "Confirm password wrong", Toast.LENGTH_SHORT).show();
+                } else if (!validEmail(email)){
+                    Toast.makeText(SignupActivity.this,"Email is invalid!",Toast.LENGTH_SHORT).show();
                 } else {
                     registerUser(name, email, pwd);
                 }
 //                if(email.isEmpty()){
-//                    emailId.setError("Please enter email id");
+//                    emailId.setError("Please enter email id!");
 //                    emailId.requestFocus();
 //                }
-//                else  if(pwd.isEmpty()){
-//                    password.setError("Please enter your password");
+//                else  if(pwd.length()<8){
+//                    password.setError("Please enter your password which is length more 8 char!");
 //                    password.requestFocus();
 //                }
-//                else  if(email.isEmpty() && pwd.isEmpty()){
-//                    Toast.makeText(SignupActivity.this,"Fields Are Empty!",Toast.LENGTH_SHORT).show();
+//                else  if(TextUtils.isEmpty(fullname)){
+//                   fullName.setError("Please enter your full name!");
 //                }
-//                else  if(!(email.isEmpty() && pwd.isEmpty())){
-//                    mFirebaseAuth.createUserWithEmailAndPassword(email, pwd).addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
-//                        @Override
-//                        public void onComplete(@NonNull Task<AuthResult> task) {
-//                            if(!task.isSuccessful()){
-//                                Toast.makeText(SignupActivity.this,"SignUp Unsuccessful, Please Try Again",Toast.LENGTH_SHORT).show();
-//                            }
-//                            else {
-//                                startActivity(new Intent(SignupActivity.this, LoginActivity.class));
-//                            }
-//                        }
-//                    });
-//                }
-//                else{
-//                    Toast.makeText(SignupActivity.this,"Error Occurred!",Toast.LENGTH_SHORT).show();
-//
+//                else if(!isEqualConfirmPW(pwd,pwd2)){
+//                    confirmPW.setError("Please enter confirm password which is equal password");
 //                }
             }
         });
@@ -107,10 +100,12 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
     }
+
     public void backToStart(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
+
     // RegisterUser
     private void registerUser(String fName, String userEmail, String userPassword){
 
@@ -124,7 +119,6 @@ public class SignupActivity extends AppCompatActivity {
                 HashMap<String, Object> map = new HashMap<>();
                 map.put("Full_Name", fName);
                 map.put("Email", userEmail);
-                map.put("Password", userPassword);
                 map.put("ID", mFirebaseAuth.getCurrentUser().getUid());
 
                 mRootRef.child("Users").child(mFirebaseAuth.getCurrentUser().getUid()).setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -149,4 +143,44 @@ public class SignupActivity extends AppCompatActivity {
             }
         });
     }
+
+    public void backToLogin(){
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
+    }
+    // check validate email
+    private boolean validEmail(String userEmail){
+        return Patterns.EMAIL_ADDRESS.matcher(userEmail).matches();
+    }
+
+//    private boolean isEqualConfirmPW(String password1, String password2){
+//        return TextUtils.equals(password1,password2);
+//    }
+
+//    private void register(final String fullname, final String email, final String password){
+//        mFirebaseAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(SignupActivity.this, new OnCompleteListener<AuthResult>() {
+//            @Override
+//            public void onComplete(@NonNull Task<AuthResult> task) {
+//                if(!task.isSuccessful()){
+//                    Toast.makeText(SignupActivity.this,"SignUp Unsuccessful, Please Try Again",Toast.LENGTH_SHORT).show();
+//                }
+//                else {
+//                    HashMap<String, Object> map = new HashMap<>();
+//                    map.put("fullname",fullname);
+//                    map.put("email", email);
+//                    mRootRef = FirebaseDatabase.getInstance().getReference("Users");
+//                    mRootRef.child(mFirebaseAuth.getCurrentUser().getUid()).setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                        @Override
+//                        public void onComplete(@NonNull Task<Void> task) {
+//                            if (task.isSuccessful()){
+//                                Toast.makeText(SignupActivity.this,"Update the profile"+
+//                                        "for better experence",Toast.LENGTH_SHORT).show();
+//                                backToLogin();
+//                            }
+//                        }
+//                    });
+//                }
+//            }
+//        });
+//    }
 }
