@@ -175,4 +175,15 @@ private void signIn(){
         startActivity(intent);
         finish();
     }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(FirebaseAuth.getInstance().getCurrentUser() !=null){
+            toHomeActivity();
+        }
+    }
+    private void toHomeActivity(){
+        Intent intent = new Intent(MainActivity.this,BottomNavbarActivity.class);
+        startActivity(intent);
+    }
 }

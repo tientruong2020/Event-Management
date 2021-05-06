@@ -1,16 +1,15 @@
 package com.example.myapplication.ContentApp;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 
-import com.example.myapplication.AddEventFragment;
 import com.example.myapplication.CalendarFragment;
 import com.example.myapplication.HomeFragment;
 import com.example.myapplication.MainActivity;
@@ -18,6 +17,7 @@ import com.example.myapplication.ProfileFragment;
 import com.example.myapplication.R;
 import com.example.myapplication.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.firebase.auth.FirebaseAuth;
 
 public class BottomNavbarActivity extends AppCompatActivity {
     @Override
@@ -31,6 +31,16 @@ public class BottomNavbarActivity extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new HomeFragment()).commit();
 
+    }
+
+    protected void onStart() {
+        super.onStart();
+        if(FirebaseAuth.getInstance().getCurrentUser() == null){
+            Log.i("User","User is unAuthenticated!");
+            backToStart();
+        }else {
+            Log.i("User","User is logined in App!");
+        }
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener navlistener =
@@ -47,7 +57,8 @@ public class BottomNavbarActivity extends AppCompatActivity {
                             selectedFragment = new SearchFragment();
                             break;
                         case R.id.navigation_add_event:
-                            selectedFragment = new AddEventFragment();
+                            selectedFragment = null;
+                            toAddEvent();
                             break;
                         case R.id.navigation_calendar:
                             selectedFragment = new CalendarFragment();
@@ -57,12 +68,22 @@ public class BottomNavbarActivity extends AppCompatActivity {
                             break;
 
                     }
-                    getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
+                    if(selectedFragment != null){
+                        getSupportFragmentManager().beginTransaction().replace(R.id.fragment,selectedFragment).commit();
+                    }
                     return true;
                 }
             };
-    public void backToStart(){
+
+
+    private void backToStart(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+        finish();
+    }
+    private void toAddEvent(){
+        Intent intent = new Intent(this, addEventActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

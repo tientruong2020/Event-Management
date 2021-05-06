@@ -4,17 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddEventFragment">
+    tools:context=".ContentApp.addEventActivity"
+    android:background="@drawable/addnew">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="297dp"
-        android:layout_height="161dp"
-        android:text="@string/hello_blank_fragment"
-        android:textSize="30sp"
+    <Button
+        android:id="@+id/backHomeBtn"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:background="@drawable/icon_ionic_md_arrow_back"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.041"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.025" />
 </androidx.constraintlayout.widget.ConstraintLayout>
