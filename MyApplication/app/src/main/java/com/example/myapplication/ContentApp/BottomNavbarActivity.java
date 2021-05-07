@@ -9,6 +9,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.myapplication.CalendarFragment;
 import com.example.myapplication.HomeFragment;
@@ -20,6 +22,10 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class BottomNavbarActivity extends AppCompatActivity {
+    Button btnLogout;
+    FirebaseAuth mFirebaseAuth;
+    private FirebaseAuth.AuthStateListener mAuthStateListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +37,17 @@ public class BottomNavbarActivity extends AppCompatActivity {
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new HomeFragment()).commit();
 
+        // Firebase
+//        mFirebaseAuth = FirebaseAuth.getInstance();
+//
+//        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                if (firebaseAuth.getCurrentUser()==null){
+//                    startActivity(new Intent(BottomNavbarActivity.this, MainActivity.class));
+//                }
+//            }
+//        };
     }
 
     protected void onStart() {
@@ -39,7 +56,7 @@ public class BottomNavbarActivity extends AppCompatActivity {
             Log.i("User","User is unAuthenticated!");
             backToStart();
         }else {
-            Log.i("User","User is logined in App!");
+            Log.i("User","User is logged in App!");
         }
     }
 
@@ -65,6 +82,9 @@ public class BottomNavbarActivity extends AppCompatActivity {
                             break;
                         case R.id.navigation_profile:
                             selectedFragment = new ProfileFragment();
+//                            FirebaseAuth.getInstance().signOut();
+//                            Intent intToMain = new Intent(BottomNavbarActivity.this, MainActivity.class);
+//                            startActivity(intToMain);
                             break;
 
                     }

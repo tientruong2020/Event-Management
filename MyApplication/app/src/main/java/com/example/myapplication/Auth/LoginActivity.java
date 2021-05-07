@@ -6,16 +6,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.ContentApp.BottomNavbarActivity;
 import com.example.myapplication.MainActivity;
 import com.example.myapplication.ProfileFragment;
 import com.example.myapplication.R;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 //Login
@@ -27,10 +30,10 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
     //    Login
-    EditText emailId, password;
-    Button btnSignIn;
-    FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
+    private EditText emailId, password;
+    private Button btnSignIn;
+    private TextView registerUser;
+    private FirebaseAuth mFirebaseAuth;
 //    End Login
     private Button backToStartBtn;
 //    private Button doLoginBtn;
@@ -40,78 +43,44 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         //        Login
-        mFirebaseAuth = FirebaseAuth.getInstance();
         emailId = findViewById(R.id.editTextTextEmailAddress);
         password = findViewById(R.id.editTextTextPassword);
+        registerUser = findViewById(R.id.textView3);
+        mFirebaseAuth = FirebaseAuth.getInstance();
         btnSignIn = findViewById(R.id.doLoginBtn);
-        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+
+        registerUser.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser mFirebaseUser = mFirebaseAuth.getCurrentUser();
-                if( mFirebaseUser != null ){
-                    Toast.makeText(LoginActivity.this,"You are logged in",Toast.LENGTH_SHORT).show();
-//                    Intent i = new Intent(LoginActivity.this, HomeActivity.class);
-//                    startActivity(i);
-                    goToHome();
-                }
-                else{
-                    Toast.makeText(LoginActivity.this,"Please Login",Toast.LENGTH_SHORT).show();
-                }
+            public void onClick(View v) {
+                startActivity(new Intent(LoginActivity.this, SignupActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
             }
-        };
+        });
 
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String email = emailId.getText().toString();
                 String pwd = password.getText().toString();
-                if(pwd.isEmpty()){
-                    password.setError("Please enter your password");
-                    password.requestFocus();
-                }
-                else  if(!validEmail(email)){
-                    Toast.makeText(LoginActivity.this,"Fields Are Empty!",Toast.LENGTH_SHORT).show();
-                }
-                else  if(!(email.isEmpty() && pwd.isEmpty())){
-                    mFirebaseAuth.signInWithEmailAndPassword(email, pwd).addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if(!task.isSuccessful()){
-                                Toast.makeText(LoginActivity.this,"Login Error, Please Login Again",Toast.LENGTH_SHORT).show();
-                            }
-                            else{
-//                                Intent intToHome = new Intent(LoginActivity.this, HomeActivity.class);
-//                                startActivity(intToHome);
-                                goToHome();
-                            }
-                        }
-                    });
-                }
-                else{
-                    Toast.makeText(LoginActivity.this,"Error Occurred!",Toast.LENGTH_SHORT).show();
+
+                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pwd)){
+                    Toast.makeText(LoginActivity.this, "Empty Credentials!", Toast.LENGTH_SHORT).show();
+                } else if (!validEmail(email)){
+                    Toast.makeText(LoginActivity.this,"Wrong Email!",Toast.LENGTH_SHORT).show();
+                } else {
+                    loginUser(email, pwd);
                 }
             }
         });
 //        End Login
 
-        backToStartBtn = findViewById(R.id.lBackToStartBtn);
-//        doLoginBtn = findViewById(R.id.doLoginBtn);
-
         /* back to Start Screen */
+        backToStartBtn = findViewById(R.id.lBackToStartBtn);
         backToStartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 backToStart();
             }
         });
-
-        /* go to Home */
-//        doLoginBtn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                goToHome();
-//            }
-//        });
     }
 
     public void backToStart(){
@@ -125,7 +94,26 @@ public class LoginActivity extends AppCompatActivity {
         finish();
     }
 
-    private boolean validEmail(String email){
-        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    //    Login
+    private void loginUser(String userEmail, String userPassword) {
+
+        mFirebaseAuth.signInWithEmailAndPassword(userEmail, userPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(LoginActivity.this, "Update the profile " + "for better experience", Toast.LENGTH_SHORT).show();
+                    goToHome();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private boolean validEmail(String userEmail){
+        return Patterns.EMAIL_ADDRESS.matcher(userEmail).matches();
     }
 }
