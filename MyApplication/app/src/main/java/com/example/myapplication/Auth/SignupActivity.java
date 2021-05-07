@@ -117,9 +117,11 @@ public class SignupActivity extends AppCompatActivity {
             public void onSuccess(AuthResult authResult) {
 
                 HashMap<String, Object> map = new HashMap<>();
-                map.put("Full_Name", fName);
+                map.put("FullName", fName);
                 map.put("Email", userEmail);
                 map.put("ID", mFirebaseAuth.getCurrentUser().getUid());
+                map.put("bio", "");
+                map.put("imageUrl", "default");
 
                 mRootRef.child("Users").child(mFirebaseAuth.getCurrentUser().getUid()).setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
