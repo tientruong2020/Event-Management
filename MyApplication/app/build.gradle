@@ -16,6 +16,9 @@ android {
         versionCode 1
         versionName "1.0"
 
+        // Vector Assets
+        android.defaultConfig.vectorDrawables.useSupportLibrary = true
+
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -43,16 +46,20 @@ dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
-    implementation 'com.google.firebase:firebase-database:19.7.0'
+
     implementation 'com.google.firebase:firebase-functions:19.0.2'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     //firebase
-    implementation 'com.google.firebase:firebase-auth:20.0.4'
+
     implementation platform('com.google.firebase:firebase-bom:27.1.0')
     implementation 'com.google.firebase:firebase-analytics'
+    // ai implements 2 cái dưới đây? implements không đọc Docs à??????
+    implementation 'com.google.firebase:firebase-database:19.7.0'
+    implementation 'com.google.firebase:firebase-auth:20.0.4'
+    implementation 'com.google.firebase:firebase-storage' // firebase storage
 
     //facebook
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
