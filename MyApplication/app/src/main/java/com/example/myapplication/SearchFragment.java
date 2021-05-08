@@ -39,7 +39,7 @@ public class SearchFragment extends Fragment {
     private List<String> mHashTagsCount;
     private TagAdapter tagAdapter;
 
-    private SocialAutoCompleteTextView search_bar;
+    private SocialAutoCompleteTextView searchBar;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -63,12 +63,12 @@ public class SearchFragment extends Fragment {
         userAdapter = new UserAdapter(getContext() , mUsers , true);
         recyclerView.setAdapter(userAdapter);
 
-        search_bar = view.findViewById(R.id.search_bar);
+        searchBar = view.findViewById(R.id.search_bar);
 
         readUsers();
         readTags();
 
-        search_bar.addTextChangedListener(new TextWatcher() {
+        searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -118,7 +118,7 @@ public class SearchFragment extends Fragment {
         reference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (TextUtils.isEmpty(search_bar.getText().toString())){
+                if (TextUtils.isEmpty(searchBar.getText().toString())){
                     mUsers.clear();
                     for (DataSnapshot snapshot : dataSnapshot.getChildren()){
                         User user = snapshot.getValue(User.class);
@@ -139,7 +139,7 @@ public class SearchFragment extends Fragment {
 
     private void searchUser (String s) {
         Query query = FirebaseDatabase.getInstance().getReference().child("Users")
-                .orderByChild("FullName").startAt(s).endAt(s + "\uf8ff");
+                .orderByChild("userFullName").startAt(s).endAt(s + "\uf8ff");
 
         query.addValueEventListener(new ValueEventListener() {
             @Override

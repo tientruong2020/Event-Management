@@ -1,60 +1,61 @@
 package com.example.myapplication.Model;
 
 public class User {
-    private String FullName;
-    private String Email;
-    private String bio;
-    private String imageUrl;
-    private String ID;
+    //Variable name must similar to Database
+    private String userFullName;
+    private String userEmail;
+    private String userBio;
+    private String userImageUrl;
+    private String userID;
 
     public User() {
     }
 
-    public User(String fullName, String email, String bio, String imageUrl, String ID) {
-        FullName = fullName;
-        Email = email;
-        this.bio = bio;
-        this.imageUrl = imageUrl;
-        this.ID = ID;
+    public User(String userFullName, String userEmail, String userBio, String userImageUrl, String userID) {
+        this.userFullName = userFullName;
+        this.userEmail = userEmail;
+        this.userBio = userBio;
+        this.userImageUrl = userImageUrl;
+        this.userID = userID;
     }
 
-    public String getFullName() {
-        return FullName;
+    public String getUserFullName() {
+        return userFullName;
     }
 
-    public void setFullName(String fullName) {
-        FullName = fullName;
+    public void setUserFullName(String userFullName) {
+        this.userFullName = userFullName;
     }
 
-    public String getEmail() {
-        return Email;
+    public String getUserEmail() {
+        return userEmail;
     }
 
-    public void setEmail(String email) {
-        Email = email;
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
     }
 
-    public String getBio() {
-        return bio;
+    public String getUserBio() {
+        return userBio;
     }
 
-    public void setBio(String bio) {
-        this.bio = bio;
+    public void setUserBio(String userBio) {
+        this.userBio = userBio;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getUserImageUrl() {
+        return userImageUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setUserImageUrl(String userImageUrl) {
+        this.userImageUrl = userImageUrl;
     }
 
-    public String getID() {
-        return ID;
+    public String getUserID() {
+        return userID;
     }
 
-    public void setID(String ID) {
-        this.ID = ID;
+    public void setUserID(String userID) {
+        this.userID = userID;
     }
 }

@@ -30,7 +30,8 @@ import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
     //    Login
-    private EditText emailId, password;
+    private EditText userEmail;
+    private EditText userPassword;
     private Button btnSignIn;
     private TextView registerUser;
     private FirebaseAuth mFirebaseAuth;
@@ -43,8 +44,8 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         //        Login
-        emailId = findViewById(R.id.editTextTextEmailAddress);
-        password = findViewById(R.id.editTextTextPassword);
+        userEmail = findViewById(R.id.editTextTextEmailAddress);
+        userPassword = findViewById(R.id.editTextTextPassword);
         registerUser = findViewById(R.id.textView3);
         mFirebaseAuth = FirebaseAuth.getInstance();
         btnSignIn = findViewById(R.id.doLoginBtn);
@@ -59,15 +60,15 @@ public class LoginActivity extends AppCompatActivity {
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String email = emailId.getText().toString();
-                String pwd = password.getText().toString();
+                String email = userEmail.getText().toString();
+                String password = userPassword.getText().toString();
 
-                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(pwd)){
+                if (TextUtils.isEmpty(email) || TextUtils.isEmpty(password)){
                     Toast.makeText(LoginActivity.this, "Empty Credentials!", Toast.LENGTH_SHORT).show();
                 } else if (!validEmail(email)){
                     Toast.makeText(LoginActivity.this,"Wrong Email!",Toast.LENGTH_SHORT).show();
                 } else {
-                    loginUser(email, pwd);
+                    loginUser(email, password);
                 }
             }
         });
@@ -95,13 +96,13 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     //    Login
-    private void loginUser(String userEmail, String userPassword) {
+    private void loginUser(String loginEmail, String loginPassword) {
 
-        mFirebaseAuth.signInWithEmailAndPassword(userEmail, userPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+        mFirebaseAuth.signInWithEmailAndPassword(loginEmail, loginPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(LoginActivity.this, "Update the profile " + "for better experience", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "Update the profile for better experience", Toast.LENGTH_SHORT).show();
                     goToHome();
                 }
             }
@@ -113,7 +114,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private boolean validEmail(String userEmail){
-        return Patterns.EMAIL_ADDRESS.matcher(userEmail).matches();
+    private boolean validEmail(String validEmail){
+        return Patterns.EMAIL_ADDRESS.matcher(validEmail).matches();
     }
 }
