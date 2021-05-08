@@ -23,12 +23,27 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+//Library show image
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
 import java.util.List;
 
+//Library show image in circle
 import de.hdodenhof.circleimageview.CircleImageView;
+
+/**
+ * Author: Me Duc Thinh
+ * Modified date: 08/05/2021
+ * Description:
+ * 1. Create package: Adapter -> UserAdapter.
+ * 2. Create package: Model -> User
+ * 3. Add action see profile & edit profile to two class: ProfileFragment & EditProfileActivity
+ * 4. Add action search user and see friend profile to class: SearchFragment
+ * 5. Design the XML: activity_edit_profile, fragment_profile, fragment_search.
+ * 6. Add some activity & user_permission to AndroidManifest.xml
+ * 7. Add some dependencies to app build.gradle
+ */
 
 public class UserAdapter extends  RecyclerView.Adapter<UserAdapter.ViewHolder>{
 
@@ -70,6 +85,7 @@ public class UserAdapter extends  RecyclerView.Adapter<UserAdapter.ViewHolder>{
             holder.btnFollow.setVisibility(View.GONE);
         }
 
+        // Check follow status to update Database
         holder.btnFollow.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,7 +95,7 @@ public class UserAdapter extends  RecyclerView.Adapter<UserAdapter.ViewHolder>{
 
                     FirebaseDatabase.getInstance().getReference().child("Follow").
                             child(user.getUserID()).child("followers").child(firebaseUser.getUid()).setValue(true);
-                    // Notify when have follow
+                    // Notify when user have follow
                   addNotification(user.getUserID());
                 } else {
                     FirebaseDatabase.getInstance().getReference().child("Follow").
@@ -91,11 +107,12 @@ public class UserAdapter extends  RecyclerView.Adapter<UserAdapter.ViewHolder>{
             }
         });
 
+        // Set context userProfileID to show friend profile when click on each elements in user search list
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (isFragment) {
-                    mContext.getSharedPreferences("PROFILE", Context.MODE_PRIVATE).edit().putString("profileID", user.getUserID()).apply();
+                    mContext.getSharedPreferences("PROFILE", Context.MODE_PRIVATE).edit().putString("userProfileID", user.getUserID()).apply();
 
                     ((FragmentActivity)mContext).getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new ProfileFragment()).commit();
                 } else {
@@ -105,9 +122,9 @@ public class UserAdapter extends  RecyclerView.Adapter<UserAdapter.ViewHolder>{
                 }
             }
         });
-
     }
 
+    // Check follow status to change button follow text
     private void isFollowed(final String id, final Button btnFollow) {
 
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Follow").child(firebaseUser.getUid())
@@ -134,6 +151,7 @@ public class UserAdapter extends  RecyclerView.Adapter<UserAdapter.ViewHolder>{
         return mUsers.size();
     }
 
+    // Define ViewHolder of each element to use in RecyclerView
     public class ViewHolder extends RecyclerView.ViewHolder{
 
         public CircleImageView userImageProfile;
@@ -151,6 +169,7 @@ public class UserAdapter extends  RecyclerView.Adapter<UserAdapter.ViewHolder>{
         }
     }
 
+    // Add Notification to Notify fragment and database
     private void addNotification(String userId) {
         HashMap<String, Object> map = new HashMap<>();
 

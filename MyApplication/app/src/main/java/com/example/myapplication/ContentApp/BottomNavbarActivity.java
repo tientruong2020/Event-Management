@@ -3,13 +3,11 @@ package com.example.myapplication.ContentApp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 
 import com.example.myapplication.CalendarFragment;
@@ -99,7 +97,7 @@ public class BottomNavbarActivity extends AppCompatActivity {
         finish();
     }
     private void toAddEvent(){
-        Intent intent = new Intent(this, addEventActivity.class);
+        Intent intent = new Intent(this, AddEventActivity.class);
         startActivity(intent);
         finish();
     }

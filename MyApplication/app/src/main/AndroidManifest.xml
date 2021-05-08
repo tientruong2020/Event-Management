@@ -17,7 +17,7 @@
         android:theme="@style/Theme.MyApplication">
 
         <activity android:name=".OptionActivity"></activity>
-        <activity android:name=".ContentApp.addEventActivity" />
+        <activity android:name=".ContentApp.AddEventActivity" />
         <activity android:name=".ContentApp.BottomNavbarActivity" />
         <activity android:name=".Auth.SignupActivity" />
         <activity android:name=".Auth.LoginActivity" />
