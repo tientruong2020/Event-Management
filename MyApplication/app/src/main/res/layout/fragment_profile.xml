@@ -27,7 +27,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:layout_marginTop="55dp">
+        android:layout_marginTop="71dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -38,109 +38,16 @@
                 android:id="@+id/top"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
                 android:layout_marginLeft="130dp"
                 android:layout_marginTop="30dp"
                 android:layout_marginBottom="10dp"
+                android:orientation="horizontal"
                 android:padding="15dp">
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/profile_User_Image"
-                    android:layout_width="120dp"
-                    android:layout_height="120dp" />
-
-                <!--                <LinearLayout-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    android:layout_height="80dp"-->
-                <!--                    android:orientation="vertical"-->
-                <!--                    android:paddingStart="20dp"-->
-                <!--                    android:paddingEnd="5dp">-->
-
-                <!--                    <LinearLayout-->
-                <!--                        android:layout_width="match_parent"-->
-                <!--                        android:layout_height="wrap_content"-->
-                <!--                        android:gravity="center"-->
-                <!--                        android:orientation="horizontal">-->
-
-                <!--                        <LinearLayout-->
-                <!--                            android:layout_width="wrap_content"-->
-                <!--                            android:layout_height="wrap_content"-->
-                <!--                            android:orientation="vertical">-->
-
-                <!--                            <TextView-->
-                <!--                                android:id="@+id/posts"-->
-                <!--                                android:layout_width="wrap_content"-->
-                <!--                                android:layout_height="wrap_content"-->
-                <!--                                android:layout_gravity="center"-->
-                <!--                                android:textColor="@color/purple_200"-->
-                <!--                                android:textSize="18sp"-->
-                <!--                                android:textStyle="bold" />-->
-
-                <!--                            <TextView-->
-                <!--                                android:layout_width="wrap_content"-->
-                <!--                                android:layout_height="wrap_content"-->
-                <!--                                android:text="POSTS"-->
-                <!--                                android:textSize="10sp" />-->
-
-                <!--                        </LinearLayout>-->
-
-                <!--                        <LinearLayout-->
-                <!--                            android:layout_width="wrap_content"-->
-                <!--                            android:layout_height="wrap_content"-->
-                <!--                            android:layout_marginStart="35dp"-->
-                <!--                            android:orientation="vertical">-->
-
-                <!--                            <TextView-->
-                <!--                                android:id="@+id/followers"-->
-                <!--                                android:layout_width="wrap_content"-->
-                <!--                                android:layout_height="wrap_content"-->
-                <!--                                android:layout_gravity="center"-->
-                <!--                                android:textColor="@color/purple_200"-->
-                <!--                                android:textSize="18sp"-->
-                <!--                                android:textStyle="bold" />-->
-
-                <!--                            <TextView-->
-                <!--                                android:layout_width="wrap_content"-->
-                <!--                                android:layout_height="wrap_content"-->
-                <!--                                android:text="FOLLOWERS"-->
-                <!--                                android:textSize="10sp" />-->
-
-                <!--                        </LinearLayout>-->
-
-                <!--                        <LinearLayout-->
-                <!--                            android:layout_width="wrap_content"-->
-                <!--                            android:layout_height="wrap_content"-->
-                <!--                            android:layout_marginStart="35dp"-->
-                <!--                            android:orientation="vertical">-->
-
-                <!--                            <TextView-->
-                <!--                                android:id="@+id/following"-->
-                <!--                                android:layout_width="wrap_content"-->
-                <!--                                android:layout_height="wrap_content"-->
-                <!--                                android:layout_gravity="center"-->
-                <!--                                android:textColor="@color/purple_200"-->
-                <!--                                android:textSize="18sp"-->
-                <!--                                android:textStyle="bold" />-->
-
-                <!--                            <TextView-->
-                <!--                                android:layout_width="wrap_content"-->
-                <!--                                android:layout_height="wrap_content"-->
-                <!--                                android:text="FOLLOWING"-->
-                <!--                                android:textSize="10sp" />-->
-
-                <!--                        </LinearLayout>-->
-
-                <!--                    </LinearLayout>-->
-
-                <!--                    <Button-->
-                <!--                        android:id="@+id/edit_profile"-->
-                <!--                        android:layout_width="match_parent"-->
-                <!--                        android:layout_height="wrap_content"-->
-                <!--                        android:layout_marginTop="10dp"-->
-                <!--                        android:padding="5dp"-->
-                <!--                        android:text="EDIT PROFILE" />-->
-
-                <!--                </LinearLayout>-->
+                    android:layout_width="115dp"
+                    android:layout_height="115dp" />
 
             </LinearLayout>
 
@@ -178,12 +85,12 @@
 
                 <Button
                     android:id="@+id/profile_Edit_Button"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
+                    android:layout_marginHorizontal="144dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:padding="5dp"
-                    android:text="EDIT PROFILE"
-                    />
+                    android:text="EDIT PROFILE" />
 
             </LinearLayout>
 
@@ -196,42 +103,54 @@
                 android:layout_marginEnd="5dp"
                 android:orientation="horizontal">
 
-                <ImageButton
-                    android:id="@+id/profile_My_Pictures"
-                    style="?android:attr/buttonBarButtonStyle"
+                <TextView
+                    android:id="@+id/profile_All_Events"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:src="@drawable/ic_my_pictures" />
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingLeft="20dp"
+                    android:text="All Events" />
 
-                <ImageButton
-                    android:id="@+id/profile_Saved_Pictures"
-                    style="?android:attr/buttonBarButtonStyle"
+                <TextView
+                    android:id="@+id/profile_Your_Events"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:src="@drawable/ic_save" />
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingLeft="20dp"
+                    android:text="Your Events" />
 
-                <ImageButton
+                <TextView
                     android:id="@+id/profile_Invitation"
-                    style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:src="@drawable/ic_icon_material_person" />
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:paddingLeft="20dp"
+                    android:text="Invitiation" />
 
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/profile_Recycler_View_Saved"
+                android:id="@+id/profile_Recycler_View_All_Events"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/profile_Recycler_View_Pictures"
+                android:id="@+id/profile_Recycler_View_Your_Events"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="354dp" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/profile_Recycler_View_Invitation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone" />
 
         </LinearLayout>
 

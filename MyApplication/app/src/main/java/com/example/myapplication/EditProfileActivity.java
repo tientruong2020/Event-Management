@@ -35,11 +35,21 @@ import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+/**
+ * Author: Me Duc Thinh
+ * Modified date: 09/05/2021
+ * Description:
+ * 1. Add drawable xml for profile/edit_profile/setting screen.
+ * 2. Format ID XML and replace in JAVA code
+ * 3. Rework with Google Sign in method
+ *
+ */
+
 public class EditProfileActivity extends AppCompatActivity {
     private ImageView editClose;
     private CircleImageView editUserImageProfile;
-    private TextView editSave;
-    private TextView editChangePhoto;
+    private ImageView editSave;
+    private ImageView editChangePhoto;
     private MaterialEditText editUserFullName;
     private MaterialEditText editUserEmail;
     private MaterialEditText editUserBio;

@@ -28,6 +28,16 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 
+/**
+ * Author: Me Duc Thinh
+ * Modified date: 09/05/2021
+ * Description:
+ * 1. Add drawable xml for profile/edit_profile/setting screen.
+ * 2. Format ID XML and replace in JAVA code
+ * 3. Rework with Google Sign in method
+ *
+ */
+
 public class SignupActivity extends AppCompatActivity {
 //    Register define
     private EditText userFullName;
