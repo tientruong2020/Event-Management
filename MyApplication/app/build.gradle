@@ -73,5 +73,6 @@ dependencies {
 
     //facebook
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.facebook.android:facebook-android-sdk:5.15.3'
     implementation 'com.squareup.picasso:picasso:2.71828'
 }
