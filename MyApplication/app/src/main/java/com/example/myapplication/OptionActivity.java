@@ -14,6 +14,7 @@ import android.widget.Toast;
 import androidx.appcompat.widget.Toolbar;
 
 
+import com.facebook.login.LoginManager;
 import com.google.android.gms.auth.api.identity.SignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -34,6 +35,7 @@ import com.google.firebase.auth.FirebaseAuth;
  */
 
 public class OptionActivity extends AppCompatActivity {
+    // Define JAVA
     private ImageView btnLogout;
     private Toolbar btnOption;
 
@@ -54,12 +56,16 @@ public class OptionActivity extends AppCompatActivity {
                 .requestEmail()
                 .build();
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
-        // Get last google account sign in
+
+        // Get last google account sign in to logout
         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
 
+        // Setting action bar
         setSupportActionBar(btnOption);
         getSupportActionBar().setTitle("");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        // When click back icon on action bar
         btnOption.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -67,6 +73,7 @@ public class OptionActivity extends AppCompatActivity {
             }
         });
 
+        // When click SIGN OUT option
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -74,12 +81,15 @@ public class OptionActivity extends AppCompatActivity {
                     signOutGoogle();
                 } else {
                     FirebaseAuth.getInstance().signOut();
+                    // log out facebook
+                    LoginManager.getInstance().logOut();
                     goToHome();
                 }
             }
         });
     }
 
+    // Function to sign out google account
     private void signOutGoogle(){
         mGoogleSignInClient.signOut().addOnCompleteListener(this, new OnCompleteListener<Void>() {
             @Override
@@ -89,8 +99,9 @@ public class OptionActivity extends AppCompatActivity {
         });
     }
 
+    // Function to go to MAIN view
     private void goToHome(){
-        startActivity(new Intent(OptionActivity.this,MainActivity.class)
+        startActivity(new Intent(OptionActivity.this, MainActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
         finish();
     }

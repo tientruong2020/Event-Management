@@ -13,15 +13,10 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.myapplication.Auth.LoginActivity;
-import com.example.myapplication.Auth.SignupActivity;
+import com.example.myapplication.Auth.SignUpActivity;
 import com.example.myapplication.ContentApp.BottomNavbarActivity;
 
 //google
-import com.facebook.AccessToken;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -42,24 +37,26 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 //facebook
-import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookSdk;
 import com.facebook.appevents.AppEventsLogger;
-import com.squareup.picasso.Picasso;
+import com.facebook.AccessToken;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 
 //java
-import java.util.Arrays;
 import java.util.HashMap;
 
 /**
  * Author: Me Duc Thinh
- * Modified date: 09/05/2021
+ * Modified date: 10/05/2021
  * Description:
  * 1. Add drawable xml for profile/edit_profile/setting screen.
  * 2. Format ID XML and replace in JAVA code
  * 3. Rework with Google Sign in method: Done
- * 4. Rework with Facebook Sign in method: Processing
+ * 4. Rework with Facebook Sign in method: Done
  *
  */
 
@@ -67,22 +64,24 @@ public class MainActivity extends AppCompatActivity {
     // Define JAVA login/signUp
     private Button toLoginBtn;
     private Button toSignUpBtn;
-    private DatabaseReference mRootRef;
 
     // Define JAVA Facebook sign in
-    private LoginButton fbSignInBtn;
+    private LoginButton facebookSignInButton;
     private CallbackManager mCallbackManager;
     private static final String TAG = "FacebookAuthentication";
-    private static final String EMAIL = "email";
 
     // Define JAVA Google sign in
     private Button googleSignInButton;
     private GoogleSignInClient mGoogleSignInClient;
-    private FirebaseAuth mAuth;
     private int RC_SIGN_IN = 1;
     private String googleUserFullName;
     private String googleUserEmail;
     private String googleUserPhotoUrl;
+
+    // Define Firebase
+    private FirebaseAuth mFirebaseAuth;
+    private DatabaseReference mRootRef;
+    private FirebaseUser firebaseUser;
 
     @SuppressLint("WrongViewCast")
     @Override
@@ -98,10 +97,11 @@ public class MainActivity extends AppCompatActivity {
         googleSignInButton = findViewById(R.id.withGGBtn);
 
         // Bind JAVA to facebook
-        fbSignInBtn = (LoginButton) findViewById(R.id.withFBBtn);
+        facebookSignInButton = (LoginButton) findViewById(R.id.withFBBtn);
+        facebookSignInButton.setReadPermissions("email", "public_profile");
 
         // Initialize firebase
-        mAuth = FirebaseAuth.getInstance();
+        mFirebaseAuth = FirebaseAuth.getInstance();
         mRootRef = FirebaseDatabase.getInstance().getReference();
 
         // Prepare for google sign in method
@@ -112,13 +112,12 @@ public class MainActivity extends AppCompatActivity {
         mGoogleSignInClient = GoogleSignIn.getClient(this, googleSignInOptions);
 
         // Set up Facebook
+        FacebookSdk.sdkInitialize(getApplicationContext());
+        AppEventsLogger.activateApp(this);
         mCallbackManager = CallbackManager.Factory.create();
-        fbSignInBtn.setReadPermissions("email", "public_profile");;
-//        FacebookSdk.sdkInitialize(getApplicationContext());
-//        AppEventsLogger.activateApp(this);
 
         // When click sign in by Facebook
-        fbSignInBtn.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
+        facebookSignInButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "onSuccess" + loginResult);
@@ -135,8 +134,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.d(TAG, "onError" + error);
             }
         });
-        //end fb
 
+        // When click LOGIN button
         toLoginBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
@@ -144,6 +143,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // When click SignUp button
         toSignUpBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -151,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // When click button google sign in
+        // When click google sign in button
         googleSignInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -160,17 +160,36 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-//    facebook
+    // Function to handle Success Access Facebook Token
     private void handleFacebookToken(AccessToken token){
         Log.d(TAG, "handleFacebookToken" + token);
+
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-        mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        mFirebaseAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if(task.isSuccessful()){
                     Log.d(TAG, "Sign in with credential: successful");
                     Toast.makeText(MainActivity.this,"Authentication Success", Toast.LENGTH_SHORT).show();
-                    openProfile();
+                    firebaseUser = mFirebaseAuth.getCurrentUser();
+
+                    // Create map user attribute
+                    HashMap<String, Object> map = new HashMap<>();
+                    map.put("userFullName", firebaseUser.getDisplayName());
+                    map.put("userEmail", firebaseUser.getEmail());
+                    map.put("userID", mFirebaseAuth.getCurrentUser().getUid());
+                    map.put("userBio", "");
+                    map.put("userImageUrl", firebaseUser.getPhotoUrl().toString());
+
+                    mRootRef.child("Users").child(mFirebaseAuth.getCurrentUser().getUid()).setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if(task.isSuccessful()){
+                                Toast.makeText(MainActivity.this, "Update the profile for better experience", Toast.LENGTH_SHORT).show();
+                                goToHome();
+                            }
+                        }
+                    });
                 } else {
                     Log.d(TAG, "Sign in with credential: failure", task.getException());
                     Toast.makeText(MainActivity.this,"Authentication Failed", Toast.LENGTH_SHORT).show();
@@ -179,19 +198,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void openProfile(){
-        startActivity(new Intent(this, FBProfileActivity.class));
-        finish();
-    }
-//    end fb
-
-    // Show google sign in accounts selection when click btn google
+    // Function to show google sign in accounts selection when click btn google
     private void signIn(){
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
-    // Load data to google task
+    // Function to load data from GG/FB
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -204,7 +217,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Check data google account end notify
+    // Function to check data google account end notify to user
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask){
         try{
             GoogleSignInAccount acc = completedTask.getResult(ApiException.class);
@@ -217,16 +230,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Function to create authentication Google account and init user Database to Firebase
     private void FirebaseGoogleAuth(GoogleSignInAccount acct) {
-        //check if the account is null
         if (acct != null) {
             AuthCredential authCredential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
-            mAuth.signInWithCredential(authCredential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+            mFirebaseAuth.signInWithCredential(authCredential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
                         Toast.makeText(MainActivity.this, "Successful", Toast.LENGTH_SHORT).show();
-                        FirebaseUser user = mAuth.getCurrentUser();
+                        FirebaseUser user = mFirebaseAuth.getCurrentUser();
                         GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
                         if(account !=  null){
                             googleUserFullName = account.getGivenName();
@@ -237,11 +250,11 @@ public class MainActivity extends AppCompatActivity {
                             HashMap<String, Object> map = new HashMap<>();
                             map.put("userFullName", googleUserFullName);
                             map.put("userEmail", googleUserEmail);
-                            map.put("userID", mAuth.getCurrentUser().getUid());
+                            map.put("userID", mFirebaseAuth.getCurrentUser().getUid());
                             map.put("userBio", "");
                             map.put("userImageUrl", googleUserPhotoUrl);
 
-                            mRootRef.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            mRootRef.child("Users").child(mFirebaseAuth.getCurrentUser().getUid()).setValue(map).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if(task.isSuccessful()){
@@ -267,32 +280,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    private void updateUI(FirebaseUser fUser){
-////        fb
-//        if(fUser != null) {
-//            Toast.makeText(MainActivity.this, fUser.getDisplayName() ,Toast.LENGTH_SHORT).show();
-////            if(fUser.getPhotoUrl()){
-////                String photoUrl = fUser.getPhotoUrl().toString();
-////                photoUrl = photoUrl + "?type=large";
-////                Picasso.get().load(photoUrl).into(mLogo);
-////            } else {
-////                textViewUser.setText("");
-////                mLogo.setImageResource(R.drawable.logo);
-////            }
-//        }
-//    }
-
-    //open Login view
+    // Function to open Login view
     public void openLoginActivity(){
         Intent intent = new Intent(this, LoginActivity.class);
         startActivity(intent);
     }
 
+    // Function to open SignUp View
     public void openSignupActivity(){
-        Intent intent = new Intent(this, SignupActivity.class);
+        Intent intent = new Intent(this, SignUpActivity.class);
         startActivity(intent);
     }
 
+    // Function to go to Main view
     public void goToHome(){
         Intent intent = new Intent(this, BottomNavbarActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -300,13 +300,12 @@ public class MainActivity extends AppCompatActivity {
         finish();
     }
 
+    // When start app => check if account is exists then go to Main view
     @Override
     protected void onStart() {
         super.onStart();
         if (FirebaseAuth.getInstance().getCurrentUser() != null){
-//            goToHome();
-            //facebook
-            openProfile();
+            goToHome();
         }
     }
 }

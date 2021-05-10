@@ -42,7 +42,7 @@ import java.util.List;
 
 public class SearchFragment extends Fragment {
 
-    // Define RecyclerView to list user allow search user's fullname action
+    // Define RecyclerView to list user allow search user's full name action
     private RecyclerView recyclerViewUser;
     private List<User> mUsers;
     private UserAdapter userAdapter;

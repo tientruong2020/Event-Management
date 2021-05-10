@@ -42,7 +42,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 
 public class ProfileFragment extends Fragment {
-    // Java UI
+    // Define JAVA UI
     private RecyclerView recyclerViewAllEvents;
 //    private EventAdapter eventAdapterAllEvents;
 //    private List<Event> allEvents;

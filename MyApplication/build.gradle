@@ -3,6 +3,8 @@ buildscript {
     repositories {
         google()
         jcenter()
+        // For facebook
+        //To download sdk from the maven central repository
         mavenCentral()
     }
     dependencies {

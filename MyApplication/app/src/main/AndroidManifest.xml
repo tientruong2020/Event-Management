@@ -15,21 +15,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
-
-        <activity
-            android:name=".FBProfileActivity"
-            android:label="@string/title_activity_f_b_profile">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
         
         <activity android:name=".OptionActivity" />
         <activity android:name=".ContentApp.AddEventActivity" />
         <activity android:name=".ContentApp.BottomNavbarActivity" />
-        <activity android:name=".Auth.SignupActivity" />
+        <activity android:name=".Auth.SignUpActivity" />
         <activity android:name=".Auth.LoginActivity" />
         <activity android:name=".EditProfileActivity" />
         <activity android:name=".MainActivity">
@@ -48,7 +38,6 @@
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
-
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"

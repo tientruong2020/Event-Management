@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
@@ -16,47 +15,48 @@ import android.widget.Toast;
 
 import com.example.myapplication.ContentApp.BottomNavbarActivity;
 import com.example.myapplication.MainActivity;
-import com.example.myapplication.ProfileFragment;
 import com.example.myapplication.R;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-//Login
+// Library confirm login
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 public class LoginActivity extends AppCompatActivity {
-    //    Login
+    // Define JAVA
     private EditText userEmail;
     private EditText userPassword;
     private Button btnSignIn;
     private TextView registerUser;
     private FirebaseAuth mFirebaseAuth;
-//    End Login
     private Button backToStartBtn;
-//    private Button doLoginBtn;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        //        Login
+        // Bind JAVA to XML
         userEmail = findViewById(R.id.editTextTextEmailAddress);
         userPassword = findViewById(R.id.editTextTextPassword);
         registerUser = findViewById(R.id.textView3);
-        mFirebaseAuth = FirebaseAuth.getInstance();
         btnSignIn = findViewById(R.id.doLoginBtn);
+        backToStartBtn = findViewById(R.id.lBackToStartBtn);
 
+        // Initialize Firebase
+        mFirebaseAuth = FirebaseAuth.getInstance();
+
+        // When click on do not have account => Register
         registerUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(LoginActivity.this, SignupActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
+                startActivity(new Intent(LoginActivity.this, SignUpActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK));
             }
         });
 
+        // When click Login
         btnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,10 +72,8 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-//        End Login
 
-        /* back to Start Screen */
-        backToStartBtn = findViewById(R.id.lBackToStartBtn);
+        // When click back to start
         backToStartBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -84,20 +82,13 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    public void backToStart(){
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-    }
-    public void goToHome(){
-        Intent intent = new Intent(this, BottomNavbarActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | intent.FLAG_ACTIVITY_CLEAR_TOP);
-        startActivity(intent);
-        finish();
+    // Validate email
+    private boolean validEmail(String validEmail){
+        return Patterns.EMAIL_ADDRESS.matcher(validEmail).matches();
     }
 
-    //    Login
+    // Handle login info and go to MAIN view
     private void loginUser(String loginEmail, String loginPassword) {
-
         mFirebaseAuth.signInWithEmailAndPassword(loginEmail, loginPassword).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -114,7 +105,17 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private boolean validEmail(String validEmail){
-        return Patterns.EMAIL_ADDRESS.matcher(validEmail).matches();
+    // Function to back to start
+    public void backToStart(){
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
+    }
+
+    // Function to go to MAIN view
+    public void goToHome(){
+        Intent intent = new Intent(this, BottomNavbarActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
+        finish();
     }
 }
