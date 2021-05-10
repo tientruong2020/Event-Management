@@ -17,7 +17,8 @@
         android:theme="@style/Theme.MyApplication">
         
         <activity android:name=".OptionActivity" />
-        <activity android:name=".ContentApp.AddEventActivity" />
+        <activity android:name=".ContentApp.AddEventActivity"
+            android:windowSoftInputMode="stateHidden|adjustPan"/>
         <activity android:name=".ContentApp.BottomNavbarActivity" />
         <activity android:name=".Auth.SignUpActivity" />
         <activity android:name=".Auth.LoginActivity" />
