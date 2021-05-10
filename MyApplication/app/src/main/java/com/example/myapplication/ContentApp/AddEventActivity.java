@@ -1,311 +1,335 @@
 package com.example.myapplication.ContentApp;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-
-import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
+import android.app.DatePickerDialog.OnDateSetListener;
+import android.app.ProgressDialog;
+import android.app.TimePickerDialog;
+import android.app.TimePickerDialog.OnTimeSetListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
+import android.widget.RadioGroup;
+import android.widget.Switch;
+import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.myapplication.Adapter.PhotoAdapter;
 import com.example.myapplication.R;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
-/**
- * Author: Le Anh Tuan
- * Modified date: 08/05/2021
- * Description:
- * 1. Refactor this class Name.
- * 2. Design the XML.
- */
 public class AddEventActivity extends AppCompatActivity {
-
-    private static final int GALLERY_REQUEST_CODE = 1;
-    private static final String TBL_USERS = "Users";
+    private static final int RESULT_LOAD_IMAGE =1;
+    private static final String BUCKET = "Event Images";
     private static final String TBL_EVENTS = "Events";
-    private static final String EVENT_IMAGES_FOLDER = "Event Images";
+    private static final String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+    private DatabaseReference mDatabase;
+    private Button backHomeBtn ;
+    private Button pickStartDate;
+    private Button pickEndDate;
+    private Button pickerImg;
+    private RecyclerView rcvPhoto;
+    private PhotoAdapter photoAdapter;
+    private EditText startDateET, endDateET, limitNumberET, eventNameET,descriptionET, placeET, editText1;
+    private Switch unlimitChecker;
+    private List<Uri> fileUriList;
+    private Button saveBtn;
+    private List<String> firebaseUriList;
+    private RadioGroup eventTypeRG;
+    int uploadImgCounter;
+    private TextView placeTW;
 
-    // Java UI
-    private Button backHomeBtn, btnAddEvent;
-    private EditText edtAddEventName, edtAddEventDescription, edtAddEventPlace,
-            edtAddEventStartDate, edtAddEventEndDate, edtAddEventCategory, edtAddEventType,
-            edtAddEventLimit;
-    private ImageView ivAddEventFirstImage, ivAddEventCategoryHelp, ivAddEventTypeHelp;
-    private CheckBox cbAddEventLimit;
-
-    // Alert Dialog Builder
-    private AlertDialog.Builder alertDialogBuilder;
-    private AlertDialog informUser;
-
-    private Uri imageUri;
-    private String downloadUrl; // url to bind to Firebase realtime db
-
-    private String eventName, eventDescription, eventPlace, eventStartDate, eventEndDate,
-            eventCategory, eventType, eventLimit; // store the event info
-
-    private DatabaseReference usersRef;             // get tbl_Users
-    private DatabaseReference eventsRef;             // get tbl_Events
-    private FirebaseAuth mAuth;                     // get current user
-    private StorageReference postImagesReference;   // store the image in to Firebase Storage
-
+    private String  eventName, description, place, startDate, endDate;
+    private boolean isOnlineType;
+    private int limitedNumber;
+    private StorageReference storageRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_event);
 
-        // initialize Firebase objects
-        mAuth = FirebaseAuth.getInstance();
-        postImagesReference = FirebaseStorage.getInstance().getReference();
-        usersRef = FirebaseDatabase.getInstance().getReference().child(TBL_USERS);
-        eventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_EVENTS);
-
-        // bind Java to XML
+        // mapping to UI component
+        eventNameET = findViewById(R.id.eventNameET);
+        descriptionET = findViewById(R.id.descriptionET);
+        placeET = findViewById(R.id.placeET);
+        pickStartDate = findViewById(R.id.PickerStartDate);
+        pickEndDate = findViewById(R.id.PickerEndDate);
+        startDateET = findViewById(R.id.startDateET);
+        endDateET = findViewById(R.id.endDateET);
+        unlimitChecker = findViewById(R.id.switchUnlimit);
+        limitNumberET = findViewById(R.id.limitET);
+        pickerImg = findViewById(R.id.pickerImage);
+        rcvPhoto = findViewById(R.id.imgListView);
+        saveBtn = findViewById(R.id.saveBtn);
+        limitNumberET.setText("1");
         backHomeBtn = findViewById(R.id.backHomeBtn);
-        btnAddEvent = findViewById(R.id.btnAddEvent);
-        edtAddEventName = findViewById(R.id.edtAddEventName);
-        edtAddEventDescription = findViewById(R.id.edtAddEventDescription);
-        edtAddEventPlace = findViewById(R.id.edtAddEventPlace);
-        edtAddEventStartDate = findViewById(R.id.edtAddEventStartDate);
-        edtAddEventEndDate = findViewById(R.id.edtAddEventEndDate);
-        edtAddEventCategory = findViewById(R.id.edtAddEventCategory);
-        edtAddEventType = findViewById(R.id.edtAddEventType);
-        edtAddEventLimit = findViewById(R.id.edtAddEventLimit);
-        ivAddEventFirstImage = findViewById(R.id.ivAddEventFirstImage);
-        ivAddEventCategoryHelp = findViewById(R.id.ivAddEventCategoryHelp);
-        ivAddEventTypeHelp = findViewById(R.id.ivAddEventTypeHelp);
-        cbAddEventLimit = findViewById(R.id.cbAddEventLimit);
+        eventTypeRG = findViewById(R.id.radioGroup);
+        placeTW = findViewById(R.id.PlaceTW);
+        isOnlineType = false;
+        // init new object
+        storageRef = FirebaseStorage.getInstance().getReference();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        fileUriList = new ArrayList<>();
+        firebaseUriList = new ArrayList<>();
 
-        // disable edtAddEventLimit
-        edtAddEventLimit.setClickable(false);
+        //init Adapter
+        photoAdapter = new PhotoAdapter(this);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3, LinearLayoutManager.VERTICAL, false);
+        rcvPhoto.setLayoutManager(gridLayoutManager);
+        rcvPhoto.setFocusable(false);
+        rcvPhoto.setAdapter(photoAdapter);
 
-        // initialize Alert Dialog Builder
-        alertDialogBuilder = new AlertDialog.Builder(AddEventActivity.this);
-
-        helpUser();
-
-        // disable edtAddEventLimit based on cbAddEventLimit status
-        cbAddEventLimit.setOnClickListener(v ->
-                edtAddEventLimit.setClickable(cbAddEventLimit.isChecked()));
-
-        // user choose an Image
-        ivAddEventFirstImage.setOnClickListener(v -> {
-            // go to the gallery to let user choose an image
-            Intent galleryIntent = new Intent();
-            galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
-            galleryIntent.setType("image/*");
-            startActivityForResult(galleryIntent, GALLERY_REQUEST_CODE);
-        });
-
-        btnAddEvent.setOnClickListener(v -> {
-            if (cbAddEventLimit.isChecked() && isFieldFilled(edtAddEventLimit)) {
-                eventLimit = edtAddEventLimit.getText().toString();
-            } else if (cbAddEventLimit.isChecked() && !isFieldFilled(edtAddEventLimit)) {
-                return;
-            } else if (!cbAddEventLimit.isChecked()) {
-                eventLimit = "no limit";
-            }
-
-            if (isFieldFilled(edtAddEventName) && isFieldFilled(edtAddEventDescription)
-                    && isFieldFilled(edtAddEventPlace) && isFieldFilled(edtAddEventStartDate)
-                    && isFieldFilled(edtAddEventEndDate) && isFieldFilled(edtAddEventCategory)
-                    && isFieldFilled(edtAddEventType)) {
-                eventName = edtAddEventName.getText().toString();
-                eventDescription = edtAddEventDescription.getText().toString();
-                eventPlace = edtAddEventPlace.getText().toString();
-                eventStartDate = edtAddEventStartDate.getText().toString();
-                eventEndDate = edtAddEventEndDate.getText().toString();
-                eventCategory = edtAddEventCategory.getText().toString();
-                eventType = edtAddEventType.getText().toString();
-
-                if (imageUri == null) {
-                    Toast.makeText(this, "Please choose an image", Toast.LENGTH_SHORT).show();
-                } else {
-                    storeImageToFirebaseStorage();
+        eventTypeRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int checkedId) {
+                switch (checkedId){
+                    case R.id.onlineRB:
+                        placeTW.setText("Event Link");
+                        isOnlineType = true;
+                        break;
+                    case R.id.offlineRB:
+                        placeTW.setText("Place");
+                        isOnlineType = false;
+                        break;
+                    default:
+                        placeTW.setText("Place");
                 }
             }
         });
 
-        backHomeBtn.setOnClickListener(view -> backHome());
-    }
+        saveBtn.setOnClickListener(new OnClickListener() {
 
-    /**
-     * Redirect user to Home Activity
-     */
-    private void backHome() {
+            @Override
+            public void onClick(View view) {
+                eventName = eventNameET.getText().toString();
+                description = descriptionET.getText().toString();
+                place = placeET.getText().toString();
+                startDate = startDateET.getText().toString();
+                endDate = endDateET.getText().toString();
+                limitedNumber = Integer.parseInt(limitNumberET.getText().toString());
+                if(isEmptyField(eventName, description,place,startDate,endDate)){
+                    Toast.makeText(AddEventActivity.this, "eventname"+eventName, Toast.LENGTH_LONG).show();
+                }else {
+                    savePost(eventName, description, place, startDate, endDate, limitedNumber, isOnlineType);
+                }
+            }
+        });
+
+        pickerImg.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                openBottomPicker();
+            }
+        });
+
+
+        pickStartDate.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDateTimeDialog(startDateET);
+            }
+        });
+
+        pickEndDate.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDateTimeDialog(endDateET);
+            }
+        });
+
+        unlimitChecker.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                if(isChecked){
+                    limitNumberET.setText("0");
+                    limitNumberET.setVisibility(View.GONE);
+                }else {
+                    Log.d("Test field",editText1.getText().toString());
+                    limitNumberET.setText("1");
+                    limitNumberET.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+        backHomeBtn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                backHome();
+            }
+        });
+    }
+    private void backHome(){
         Intent intent = new Intent(this, BottomNavbarActivity.class);
         startActivity(intent);
     }
-
-    /**
-     * Display Alert Dialog to help user when user click on help icon.
-     */
-    private void helpUser() {
-        ivAddEventCategoryHelp.setOnClickListener(v -> {
-            alertDialogBuilder.setMessage("This is the event category");
-            informUser = alertDialogBuilder.create();
-            informUser.show();
-        });
-
-        ivAddEventTypeHelp.setOnClickListener(v -> {
-            alertDialogBuilder.setMessage("This is the event type");
-            informUser = alertDialogBuilder.create();
-            informUser.show();
-        });
+    // show Datetime dialog
+    private void showDateTimeDialog( EditText editText){
+        final Calendar calendar= Calendar.getInstance();
+        OnDateSetListener dateSetListener = new OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                calendar.set(Calendar.YEAR,year);
+                calendar.set(Calendar.MONTH,month);
+                calendar.set(Calendar.DAY_OF_MONTH, day);
+                OnTimeSetListener timeSetListener = new OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
+                        calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                        calendar.set(Calendar.MINUTE,minute);
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy-MM-dd HH:mm");
+                        editText.setText(simpleDateFormat.format(calendar.getTime()));
+                    }
+                };
+                new TimePickerDialog(AddEventActivity.this,timeSetListener,calendar.get(Calendar.HOUR_OF_DAY),calendar.get(Calendar.MINUTE),false).show();
+            }
+        };
+        new DatePickerDialog(AddEventActivity.this,dateSetListener,calendar.get(Calendar.YEAR),calendar.get(Calendar.MONTH),calendar.get(Calendar.DAY_OF_MONTH)).show();
     }
 
-    /**
-     * Check if EditText field has been filled or not.
-     * @param editText the checking EditText.
-     * @return false if empty. Otherwise, true.
-     */
-    private boolean isFieldFilled(EditText editText) {
-        if (editText.getText().toString().isEmpty()) {
-            editText.setError("Required field");
-            return false;
-        }
-        return true;
+    private void openBottomPicker(){
+        Intent intent = new Intent();
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        intent.setAction(Intent.ACTION_GET_CONTENT);
+        startActivityForResult(Intent.createChooser(intent,"SELECT PICTURE"),RESULT_LOAD_IMAGE);
     }
 
-    /**
-     * Display the chosen image
-     * @param requestCode request code for going to Gallery
-     * @param resultCode return resultCode from Gallery
-     * @param data the chosen image
-     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == GALLERY_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            imageUri = data.getData();
-            ivAddEventFirstImage.setImageURI(imageUri);
+        if(requestCode == RESULT_LOAD_IMAGE && resultCode== RESULT_OK){
+            Log.d("Notifycation:","Choose img");
+            if(data.getClipData() !=null){
+               int totalItemSelected = data.getClipData().getItemCount();
+               for (int i=0; i<totalItemSelected; i++){
+                   Uri fileUri = data.getClipData().getItemAt(i).getUri();
+                   Log.d("ImgUri",fileUri.toString());
+                   fileUriList.add(fileUri);
+                   photoAdapter.setData(fileUriList);
+                   photoAdapter.notifyDataSetChanged();
+                }
+            }else if(data.getData() !=null){
+                Uri fileUri = data.getData();
+                fileUriList.add(fileUri);
+                photoAdapter.setData(fileUriList);
+                photoAdapter.notifyDataSetChanged();
+            }
         }
     }
+    // savePost
+    private void savePost(final String eventName, final String description, final String place, final String startDate, final String endDate, final int limitedNumber,final boolean isOnlineEventType){
+        int totalImgFile = fileUriList.size();
+        ProgressDialog progressDialog = new ProgressDialog(this);
+        progressDialog.setMessage("Uploaded 0/"+totalImgFile);
+        progressDialog.setCancelable(false);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+        if(totalImgFile < 1 || fileUriList == null){
+            Toast.makeText(AddEventActivity.this,"Please!! pick images", Toast.LENGTH_SHORT).show();
+        }
 
-    /**
-     * Upload the post image to FirebaseStorage with the format IMG_yyyyMMdd_HHmm.
-     */
-    @SuppressLint("SimpleDateFormat")
-    private void storeImageToFirebaseStorage() {
-        SimpleDateFormat sdfImageDate = new SimpleDateFormat("yyyyMMdd_HHmm");
-        Date now = new Date();
-        String strImageDate = sdfImageDate.format(now);
+        else {
 
-        String postedImageName = "IMG_" + strImageDate + ".jpg"; // IMG_20210506_2309.jpg
+           for (int i=0; i<totalImgFile; i++){
+               Date date = new Date();
+               String timestamp = String.valueOf(new Timestamp(date.getTime()).getTime());
+               String fileName = "IMG_" + timestamp + ".jpg";
+               StorageReference fileToUpload = storageRef.child(BUCKET).child(UID).child(fileName);
+               fileToUpload.putFile(fileUriList.get(i)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                   @Override
+                   public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                       if(task.isSuccessful()){
+                           storageRef.child(BUCKET).child(UID).child(fileName).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                               @Override
+                               public void onComplete(@NonNull Task<Uri> task) {
+                                   uploadImgCounter++;
+                                   progressDialog.setMessage("Uploaded: "+uploadImgCounter+"/"+totalImgFile);
+                                    if (task.isSuccessful()){
+                                        firebaseUriList.add(task.getResult().toString());
+                                    }else {
+                                        Toast.makeText(AddEventActivity.this," Please!!Check your netWork!!", Toast.LENGTH_SHORT).show();
+                                    }
+                                    if(uploadImgCounter == totalImgFile){
+                                        saveDataToFirebase(eventName,description,place,startDate,endDate,limitedNumber,firebaseUriList, progressDialog,isOnlineEventType);
+                                    }
+                               }
+                           });
+                       }else {
+                           uploadImgCounter++;
+                           Toast.makeText(AddEventActivity.this,"Couldn`t upload image", Toast.LENGTH_SHORT).show();
+                       }
+                   }
+               });
+           }
 
-        StorageReference filePath = postImagesReference
-                .child(EVENT_IMAGES_FOLDER)
-                .child(mAuth.getCurrentUser().getUid())
-                .child(imageUri.getLastPathSegment() + "_" + postedImageName);
-
-        filePath.putFile(imageUri).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                // Toast.makeText(this, "Image uploaded successfully to Storage", Toast.LENGTH_SHORT).show();
-
-                filePath.getDownloadUrl().addOnSuccessListener(uri -> {
-                    downloadUrl = uri.toString();
-
-                    saveEventInformationIntoDatabase();
-                });
-
-            } else {
-                String message = task.getException().getMessage();
-                Toast.makeText(this, "Cannot upload image to Storage: " + message, Toast.LENGTH_SHORT).show();
-            }
-        });
+        }
     }
-
-    /**
-     * Save the event information into the Firebase Realtime database
-     */
-    private void saveEventInformationIntoDatabase() {
-        usersRef.child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+    private void saveDataToFirebase(final String eventName, final String description, final String place, final String startDate, final String endDate, final int limitedNumber, List<String> firebaseUriList, ProgressDialog progressDialog, final boolean isOnlineEventType){
+        progressDialog.setMessage("Saving Your Post.....");
+        Date date = new Date();
+        long timestamp = new Timestamp(date.getTime()).getTime();
+        HashMap<String,Object> dataMap = new HashMap<>();
+        dataMap.put("event_name", eventName);
+        dataMap.put("description", description);
+        dataMap.put("place", place);
+        dataMap.put("start_date", startDate);
+        dataMap.put("end_date", endDate);
+        dataMap.put("Limit", limitedNumber);
+        dataMap.put("uid", UID );
+        dataMap.put("isOnline",isOnlineEventType);
+        dataMap.put("ImgUri_list", firebaseUriList);
+        dataMap.put("createdAt",timestamp);
+        String uuid = UUID.randomUUID().toString();
+        mDatabase.child(TBL_EVENTS).child(uuid).setValue(dataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    // get user full name and profile image
-                    //TODO: kiểm tra lại lần nữa: tên các key trong database
-                    String userFullName = snapshot.child("fullname").getValue().toString();
-                    String userProfileImage = snapshot.child("profile_image").getValue().toString();
-                    // TODO: lấy slogan của công ty nữa.
-
-                    // save post information into database
-                    HashMap<String, Object> postMap = new HashMap<>();
-                    postMap.put("uid", mAuth.getCurrentUser().getUid());
-                    postMap.put("userProfileImage", userProfileImage);
-                    postMap.put("userFullname", userFullName);
-                    postMap.put("postDate", getCurrentDate());
-                    postMap.put("postTime", getCurrentTime());
-                    postMap.put("eventName", eventName);
-                    postMap.put("eventDescription", eventDescription);
-                    postMap.put("eventPlace", eventPlace);
-                    postMap.put("eventStartDate", eventStartDate);
-                    postMap.put("eventEndDate", eventEndDate);
-                    postMap.put("eventImage", downloadUrl);
-                    postMap.put("eventCategory", eventCategory);
-                    postMap.put("eventType", eventType);
-                    postMap.put("eventLimit", eventLimit);
-
-
-                    String postName = mAuth.getCurrentUser().getUid() + "_" + getCurrentDate() + "_" + getCurrentTime();
-
-                    eventsRef.child(postName)
-                            .updateChildren(postMap).addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            startActivity(new Intent(AddEventActivity.this, BottomNavbarActivity.class));
-                            finish();
-
-                            Toast.makeText(AddEventActivity.this, "New post is updated successfully", Toast.LENGTH_SHORT).show();
-                        } else {
-                            String message = task.getException().getMessage();
-                            Toast.makeText(AddEventActivity.this, "Error update post: " + message, Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(AddEventActivity.this, "Event is successful posted!!", Toast.LENGTH_SHORT).show();
+                    progressDialog.dismiss();
+                    for(int i=1; i< firebaseUriList.size();i++){
+                        Log.d("DoneUri", firebaseUriList.get(i));
+                    }
+                    backHome();
                 }
             }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
-
-    /**
-     * get the current date in the format: yyyy-MM-dd
-     * @return the current date in String
-     */
-    @SuppressLint("SimpleDateFormat")
-    private String getCurrentDate() {
-        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
-        Date now = new Date();
-        return sdfDate.format(now);
-    }
-
-    /**
-     * get the current in the format: HH:mm:ss
-     * @return the current time in String
-     */
-    @SuppressLint("SimpleDateFormat")
-    private String getCurrentTime() {
-        SimpleDateFormat sdfTime = new SimpleDateFormat("HH:mm:ss");
-        Date now = new Date();
-        return sdfTime.format(now);
+    private Boolean isEmptyField( String eventName,  String description,  String place,  String startDate,  String endDate){
+        if(!TextUtils.isEmpty(eventName) && !TextUtils.isEmpty(description) && !TextUtils.isEmpty(place) && !TextUtils.isEmpty(startDate) && !TextUtils.isEmpty(endDate)){
+            return false;
+        }else {
+            return true;
+        }
     }
 }
