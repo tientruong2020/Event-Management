@@ -2,7 +2,7 @@ plugins {
     id 'com.android.application'
 }
 apply plugin: 'com.android.application'
-//firebase
+
 apply plugin: 'com.google.gms.google-services'
 
 android {
@@ -47,21 +47,30 @@ dependencies {
     implementation 'com.google.android.gms:play-services-auth:18.0.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
 
-    implementation 'com.google.firebase:firebase-functions:19.0.2'
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    implementation 'de.hdodenhof:circleimageview:3.1.0'
+
+    //edit profile
+    implementation "com.hendraanggrian.appcompat:socialview:0.2"
+    implementation "com.hendraanggrian.appcompat:socialview-commons:0.2"
+    api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.rengwuxian.materialedittext:library:2.1.4'
 
     //firebase
-
+    // Import the Firebase BoM
+    // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation platform('com.google.firebase:firebase-bom:27.1.0')
+    // Declare the dependency for the Firebase SDK for Google Analytics
     implementation 'com.google.firebase:firebase-analytics'
-    // ai implements 2 cái dưới đây? implements không đọc Docs à??????
-    implementation 'com.google.firebase:firebase-database:19.7.0'
-    implementation 'com.google.firebase:firebase-auth:20.0.4'
-    implementation 'com.google.firebase:firebase-storage' // firebase storage
+    // Declare the dependencies for any other desired Firebase products
+    implementation 'com.google.firebase:firebase-functions'
+    implementation 'com.google.firebase:firebase-database'
+    implementation 'com.google.firebase:firebase-auth'
+    implementation 'com.google.firebase:firebase-storage'
 
     //facebook
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
-    implementation 'com.squareup.picasso:picasso:2.71828'
 }

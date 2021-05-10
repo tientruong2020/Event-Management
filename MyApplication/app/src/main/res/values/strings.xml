@@ -8,8 +8,9 @@
     <string name="title_profile">Profile</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-<!--    facebook-->
-    <string name="facebook_app_id">498524954699515</string> <string name="fb_login_protocol_scheme">fb498524954699515</string>
+    <!--    facebook-->
+    <string name="facebook_app_id">498524954699515</string>
+    <string name="fb_login_protocol_scheme">fb498524954699515</string>
     <string name="setting">Setting</string>
     <string name="logout">Logout</string>
 
@@ -26,4 +27,5 @@
     <string name="edt_limit_hint">Max No. of people</string>
     <string name="txt_add_event_image_description">This is an image</string>
     <string name="btn_add_event">Add Event</string>
+    <string name="title_activity_f_b_profile">FBProfileActivity</string>
 </resources>

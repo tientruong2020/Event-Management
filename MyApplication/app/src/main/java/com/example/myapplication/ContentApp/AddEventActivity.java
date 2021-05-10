@@ -59,7 +59,7 @@ public class AddEventActivity extends AppCompatActivity {
     private String downloadUrl; // url to bind to Firebase realtime db
 
     private String eventName, eventDescription, eventPlace, eventStartDate, eventEndDate,
-                    eventCategory, eventType, eventLimit; // store the event info
+            eventCategory, eventType, eventLimit; // store the event info
 
     private DatabaseReference usersRef;             // get tbl_Users
     private DatabaseReference eventsRef;             // get tbl_Events

@@ -20,9 +20,8 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class BottomNavbarActivity extends AppCompatActivity {
-    Button btnLogout;
-    FirebaseAuth mFirebaseAuth;
-    private FirebaseAuth.AuthStateListener mAuthStateListener;
+
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,18 +33,6 @@ public class BottomNavbarActivity extends AppCompatActivity {
         toolbar.setOnNavigationItemSelectedListener(navlistener);
 
         getSupportFragmentManager().beginTransaction().replace(R.id.fragment, new HomeFragment()).commit();
-
-        // Firebase
-//        mFirebaseAuth = FirebaseAuth.getInstance();
-//
-//        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                if (firebaseAuth.getCurrentUser()==null){
-//                    startActivity(new Intent(BottomNavbarActivity.this, MainActivity.class));
-//                }
-//            }
-//        };
     }
 
     protected void onStart() {
@@ -80,9 +67,6 @@ public class BottomNavbarActivity extends AppCompatActivity {
                             break;
                         case R.id.navigation_profile:
                             selectedFragment = new ProfileFragment();
-//                            FirebaseAuth.getInstance().signOut();
-//                            Intent intToMain = new Intent(BottomNavbarActivity.this, MainActivity.class);
-//                            startActivity(intToMain);
                             break;
 
                     }
@@ -92,6 +76,19 @@ public class BottomNavbarActivity extends AppCompatActivity {
                     return true;
                 }
             };
+
+    //When click on ImageUser Event post or comment => change view to profile user (include profileID in Context)
+//    Bundle intent = getIntent().getExtras();
+//    if (intent != null){
+//        String profileID = intent.getString("publisherID");
+//
+//        getSharedPreferences("PROFILE", MODE_PRIVATE).edit().putString("profileID", profileID).apply();
+//
+//        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_view_tag, new ProfileFragment()).commit();
+//        bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
+//    } else {
+//        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_view_tag, new HomeFragment()).commit();
+//    }
 
 
     private void backToStart(){
