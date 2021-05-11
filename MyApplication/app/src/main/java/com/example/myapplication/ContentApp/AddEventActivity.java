@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.Adapter.PhotoAdapter;
+import com.example.myapplication.ImgFullscreenActivity;
 import com.example.myapplication.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -64,7 +65,7 @@ public class AddEventActivity extends AppCompatActivity {
     private PhotoAdapter photoAdapter;
     private EditText startDateET, endDateET, limitNumberET, eventNameET,descriptionET, placeET, editText1;
     private Switch unlimitChecker;
-    private List<Uri> fileUriList;
+    public List<Uri> fileUriList;
     private Button saveBtn;
     private List<String> firebaseUriList;
     private RadioGroup eventTypeRG;
@@ -105,11 +106,27 @@ public class AddEventActivity extends AppCompatActivity {
         firebaseUriList = new ArrayList<>();
 
         //init Adapter
-        photoAdapter = new PhotoAdapter(this);
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3, LinearLayoutManager.VERTICAL, false);
-        rcvPhoto.setLayoutManager(gridLayoutManager);
-        rcvPhoto.setFocusable(false);
-        rcvPhoto.setAdapter(photoAdapter);
+//        photoAdapter = new PhotoAdapter(AddEventActivity.this);
+//        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3, LinearLayoutManager.VERTICAL, false);
+//        rcvPhoto.setLayoutManager(gridLayoutManager);
+//        rcvPhoto.setFocusable(false);
+//        rcvPhoto.setAdapter(photoAdapter);
+//        photoAdapter.setOnItemClickListener(new PhotoAdapter.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(int position) {
+//                Uri uri = fileUriList.get(position);
+//                Intent intent = new Intent(AddEventActivity.this, ImgFullscreenActivity.class);
+//                intent.putExtra("imgUri", uri);
+//                startActivity(intent);
+//            }
+//
+//            @Override
+//            public void onDeleteClick(int position) {
+//                fileUriList.remove(position);
+//                photoAdapter.notifyDataSetChanged();
+//            }
+//        });
+        buildRecyclerView();
 
         eventTypeRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -186,6 +203,28 @@ public class AddEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 backHome();
+            }
+        });
+    }
+    private void buildRecyclerView(){
+        photoAdapter = new PhotoAdapter(AddEventActivity.this);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3, LinearLayoutManager.VERTICAL, false);
+        rcvPhoto.setLayoutManager(gridLayoutManager);
+        rcvPhoto.setFocusable(false);
+        rcvPhoto.setAdapter(photoAdapter);
+        photoAdapter.setOnItemClickListener(new PhotoAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(int position) {
+                Uri uri = fileUriList.get(position);
+                Intent intent = new Intent(AddEventActivity.this, ImgFullscreenActivity.class);
+                intent.putExtra("imgUri", uri);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onDeleteClick(int position) {
+                fileUriList.remove(position);
+                photoAdapter.notifyDataSetChanged();
             }
         });
     }
@@ -331,5 +370,9 @@ public class AddEventActivity extends AppCompatActivity {
         }else {
             return true;
         }
+    }
+    public void removeItem(final int position){
+        fileUriList.remove(position);
+        photoAdapter.notifyDataSetChanged();
     }
 }
