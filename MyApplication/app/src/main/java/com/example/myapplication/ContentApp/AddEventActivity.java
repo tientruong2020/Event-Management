@@ -5,6 +5,7 @@ import android.app.DatePickerDialog.OnDateSetListener;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.app.TimePickerDialog.OnTimeSetListener;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -52,11 +54,17 @@ import java.util.List;
 import java.util.UUID;
 
 public class AddEventActivity extends AppCompatActivity {
-    private static final int RESULT_LOAD_IMAGE =1;
+    private static final int RESULT_LOAD_IMAGE = 1;
+    private static final int REQUEST_LOAD_FULLSCREEN_IMAGE = 2;
+    private static final int RESULT_BACK = 2;
+    private static final int RESULT_DELETE_IMAGE = 3;
     private static final String BUCKET = "Event Images";
     private static final String TBL_EVENTS = "Events";
+    private static final String TBL_USERS = "Users";
+    private static final String PROP_USER_EVENTS = "userEvents";
     private static final String UID = FirebaseAuth.getInstance().getCurrentUser().getUid();
     private DatabaseReference mDatabase;
+    private AlertDialog.Builder confirmDialogBuilder;
     private Button backHomeBtn ;
     private Button pickStartDate;
     private Button pickEndDate;
@@ -105,27 +113,6 @@ public class AddEventActivity extends AppCompatActivity {
         fileUriList = new ArrayList<>();
         firebaseUriList = new ArrayList<>();
 
-        //init Adapter
-//        photoAdapter = new PhotoAdapter(AddEventActivity.this);
-//        GridLayoutManager gridLayoutManager = new GridLayoutManager(this,3, LinearLayoutManager.VERTICAL, false);
-//        rcvPhoto.setLayoutManager(gridLayoutManager);
-//        rcvPhoto.setFocusable(false);
-//        rcvPhoto.setAdapter(photoAdapter);
-//        photoAdapter.setOnItemClickListener(new PhotoAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(int position) {
-//                Uri uri = fileUriList.get(position);
-//                Intent intent = new Intent(AddEventActivity.this, ImgFullscreenActivity.class);
-//                intent.putExtra("imgUri", uri);
-//                startActivity(intent);
-//            }
-//
-//            @Override
-//            public void onDeleteClick(int position) {
-//                fileUriList.remove(position);
-//                photoAdapter.notifyDataSetChanged();
-//            }
-//        });
         buildRecyclerView();
 
         eventTypeRG.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -218,13 +205,14 @@ public class AddEventActivity extends AppCompatActivity {
                 Uri uri = fileUriList.get(position);
                 Intent intent = new Intent(AddEventActivity.this, ImgFullscreenActivity.class);
                 intent.putExtra("imgUri", uri);
-                startActivity(intent);
+                intent.putExtra("listPosition", position);
+                //startActivity(intent);
+                startActivityForResult(intent,REQUEST_LOAD_FULLSCREEN_IMAGE);
             }
 
             @Override
             public void onDeleteClick(int position) {
-                fileUriList.remove(position);
-                photoAdapter.notifyDataSetChanged();
+                confirmDeleteDialog(position);
             }
         });
     }
@@ -267,8 +255,7 @@ public class AddEventActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode == RESULT_LOAD_IMAGE && resultCode== RESULT_OK){
-            Log.d("Notifycation:","Choose img");
+        if(requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK){
             if(data.getClipData() !=null){
                int totalItemSelected = data.getClipData().getItemCount();
                for (int i=0; i<totalItemSelected; i++){
@@ -283,6 +270,19 @@ public class AddEventActivity extends AppCompatActivity {
                 fileUriList.add(fileUri);
                 photoAdapter.setData(fileUriList);
                 photoAdapter.notifyDataSetChanged();
+            }
+        }
+        else if(requestCode == REQUEST_LOAD_FULLSCREEN_IMAGE && resultCode == RESULT_BACK){
+            Toast.makeText(this, "Wellcome back to Add Event.", Toast.LENGTH_SHORT);
+        }
+        else if(requestCode == REQUEST_LOAD_FULLSCREEN_IMAGE && resultCode == RESULT_DELETE_IMAGE){
+            int position = data.getIntExtra("uriListPosition", -1);
+            if(position ==- 1){
+                Toast.makeText(AddEventActivity.this,"Couldn`t delete image", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                removeItem(position);
+                Toast.makeText(AddEventActivity.this,"Deleted image", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -349,17 +349,22 @@ public class AddEventActivity extends AppCompatActivity {
         dataMap.put("isOnline",isOnlineEventType);
         dataMap.put("ImgUri_list", firebaseUriList);
         dataMap.put("createdAt",timestamp);
-        String uuid = UUID.randomUUID().toString();
-        mDatabase.child(TBL_EVENTS).child(uuid).setValue(dataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
+        String eventId = UUID.randomUUID().toString();
+        mDatabase.child(TBL_EVENTS).child(eventId).setValue(dataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(AddEventActivity.this, "Event is successful posted!!", Toast.LENGTH_SHORT).show();
-                    progressDialog.dismiss();
-                    for(int i=1; i< firebaseUriList.size();i++){
-                        Log.d("DoneUri", firebaseUriList.get(i));
-                    }
-                    backHome();
+//                    Toast.makeText(AddEventActivity.this, "Event is successful posted!!", Toast.LENGTH_SHORT).show();
+//                    progressDialog.dismiss();
+                    mDatabase.child(TBL_USERS).child(UID).child("userEvents").push().setValue(eventId).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            Toast.makeText(AddEventActivity.this, "Event is successful posted!!", Toast.LENGTH_SHORT).show();
+                            progressDialog.dismiss();
+                            backHome();
+                        }
+                    });
+                    //backHome();
                 }
             }
         });
@@ -371,8 +376,27 @@ public class AddEventActivity extends AppCompatActivity {
             return true;
         }
     }
-    public void removeItem(final int position){
+    private void removeItem(final int position){
         fileUriList.remove(position);
         photoAdapter.notifyDataSetChanged();
+    }
+    public void confirmDeleteDialog(final int position) {
+        confirmDialogBuilder = new AlertDialog.Builder(this);
+        confirmDialogBuilder.setMessage("Are you sure want to delete the Image")
+                .setCancelable(false)
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        removeItem(position);
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+        AlertDialog alertDialog = confirmDialogBuilder.create();
+        alertDialog.show();
     }
 }
