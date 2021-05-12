@@ -367,12 +367,16 @@ public class AddEventActivity extends AppCompatActivity {
                 if(task.isSuccessful()){
 //                    Toast.makeText(AddEventActivity.this, "Event is successful posted!!", Toast.LENGTH_SHORT).show();
 //                    progressDialog.dismiss();
-                    mDatabase.child(TBL_USERS).child(UID).child("userEvents").push().setValue(eventId).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    String key = mDatabase.child(TBL_USERS).child(UID).child("userEvents").push().getKey();
+                    HashMap<String, Object> userEventMap = new HashMap<>();
+                    userEventMap.put(key, eventId);
+                    mDatabase.child(TBL_USERS).child(UID).child("userEvents").updateChildren(userEventMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             Toast.makeText(AddEventActivity.this, "Event is successful posted!!", Toast.LENGTH_SHORT).show();
                             progressDialog.dismiss();
                             backHome();
+
                         }
                     });
                     //backHome();
