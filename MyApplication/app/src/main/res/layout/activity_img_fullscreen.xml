@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ImgFullscreenActivity">
     <LinearLayout
+        android:background="@color/bgNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -14,6 +15,7 @@
         android:gravity="left">
 
         <Button
+            android:id="@+id/BackPostBtn"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:background="@drawable/ic_arrow_back" />
@@ -29,6 +31,7 @@
         android:gravity="right">
 
         <Button
+            android:id="@+id/DeleteDetailImg"
             android:layout_width="35dp"
             android:layout_height="35dp"
             android:layout_gravity="left"
