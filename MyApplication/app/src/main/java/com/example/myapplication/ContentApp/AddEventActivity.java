@@ -45,6 +45,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -143,11 +144,21 @@ public class AddEventActivity extends AppCompatActivity {
                 startDate = startDateET.getText().toString();
                 endDate = endDateET.getText().toString();
                 limitedNumber = Integer.parseInt(limitNumberET.getText().toString());
-                if(isEmptyField(eventName, description,place,startDate,endDate)){
-                    Toast.makeText(AddEventActivity.this, "eventname"+eventName, Toast.LENGTH_LONG).show();
-                }else {
-                    savePost(eventName, description, place, startDate, endDate, limitedNumber, isOnlineType);
+
+                    if(isEmptyField(eventName, description,place,startDate,endDate)){
+                        Toast.makeText(AddEventActivity.this, "eventname"+eventName, Toast.LENGTH_LONG).show();
+                    }
+                try {
+                    if(!checkEndDate(startDate, endDate)){
+                        endDateET.setError("End date is before Start date");
+                        //Toast.makeText(AddEventActivity.this, "End date is before Start date", Toast.LENGTH_LONG).show();
+                    }else {
+                        savePost(eventName, description, place, startDate, endDate, limitedNumber, isOnlineType);
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
+
             }
         });
 
@@ -234,7 +245,7 @@ public class AddEventActivity extends AppCompatActivity {
                     public void onTimeSet(TimePicker timePicker, int hourOfDay, int minute) {
                         calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
                         calendar.set(Calendar.MINUTE,minute);
-                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yy-MM-dd HH:mm");
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
                         editText.setText(simpleDateFormat.format(calendar.getTime()));
                     }
                 };
@@ -398,5 +409,14 @@ public class AddEventActivity extends AppCompatActivity {
                 });
         AlertDialog alertDialog = confirmDialogBuilder.create();
         alertDialog.show();
+    }
+    private boolean checkEndDate(String startDateStr, String endDateStr) throws ParseException {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+        Date startDate = simpleDateFormat.parse(startDateStr.trim());
+        Date endDate =  simpleDateFormat.parse(endDateStr.trim());
+        if(endDate.before(startDate) || endDate.equals(startDate)){
+            return false;
+        }
+        return true;
     }
 }
