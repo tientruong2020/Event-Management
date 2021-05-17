@@ -14,6 +14,13 @@
     <string name="setting">Setting</string>
     <string name="logout">Logout</string>
 
+    <!-- All events strings -->
+    <string name="start_date">From:</string>
+    <string name="end_date">To:</string>
+    <string name="date">in</string>
+    <string name="place">Place:</string>
+
+
     <!-- Add Event Activity Strings -->
     <string name="edt_event_name_hint">Enter event name</string>
     <string name="edt_event_description_hint">Enter event description</string>

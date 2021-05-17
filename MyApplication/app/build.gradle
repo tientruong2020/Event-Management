@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.myapplication"
-        minSdkVersion 29
+        minSdkVersion 21
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"
@@ -60,6 +60,9 @@ dependencies {
     implementation 'com.google.android.material:material:1.0.0'
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
 
+    // slider image
+    implementation 'com.github.smarteist:autoimageslider:1.4.0'
+
     //firebase
     // Import the Firebase BoM
     // When using the BoM, you don't specify versions in Firebase library dependencies
@@ -71,6 +74,9 @@ dependencies {
     implementation 'com.google.firebase:firebase-database'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-storage'
+
+    // Firebase Realtime Database Recycler View Adapter
+    implementation 'com.firebaseui:firebase-ui-database:7.1.1'
 
     //facebook
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
