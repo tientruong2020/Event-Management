@@ -191,9 +191,8 @@ public class AddEventActivity extends AppCompatActivity {
                     limitNumberET.setText("0");
                     limitNumberET.setVisibility(View.GONE);
                 }else {
-                    Log.d("Test field",editText1.getText().toString());
-                    limitNumberET.setText("1");
                     limitNumberET.setVisibility(View.VISIBLE);
+                    limitNumberET.setText("1");
                 }
             }
         });

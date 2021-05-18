@@ -34,7 +34,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="15dp"
                 android:layout_marginEnd="5dp"
-                android:text="ten cong ty" />
+                android:text="ten cong ty"
+                android:textColor="@color/violent"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/txtUserBio"
@@ -42,7 +45,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="5dp"
-                android:text="slogan cong ty" />
+                android:text="slogan cong ty"
+                android:textStyle="italic" />
         </LinearLayout>
 
     </LinearLayout>
