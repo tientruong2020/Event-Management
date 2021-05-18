@@ -17,6 +17,8 @@ import android.widget.TextView;
 import com.example.myapplication.Adapter.SliderAdapter;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,7 +43,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class HomeFragment extends Fragment {
 
+    private static final String TBL_USERS = "Users";
     private static final String TBL_EVENTS = "Events";
+    private static final String TBL_LIKES = "Likes";
+
+    private boolean alreadyLiked = false;
 
     // get the recycler view
     private RecyclerView rvAllEvents;
@@ -49,6 +55,9 @@ public class HomeFragment extends Fragment {
 
     // reference to TBL_EVENTS
     private DatabaseReference eventsRef;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private DatabaseReference likesRef;
 
     public HomeFragment() {
         // required empty constructor
@@ -77,6 +86,10 @@ public class HomeFragment extends Fragment {
     public void onActivityCreated(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        likesRef = FirebaseDatabase.getInstance().getReference().child(TBL_LIKES);
+
         eventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_EVENTS);
 
         // handles recycler view initialization
@@ -104,8 +117,11 @@ public class HomeFragment extends Fragment {
                     protected void onBindViewHolder(@NonNull @NotNull EventsViewHolder holder,
                                                     int position, @NonNull @NotNull Event model) {
 
+                        // get the event ID
+                        final String eventKey = getRef(position).getKey();
+
                         String uid = model.getUid();
-                        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
+                        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child(TBL_USERS).child(uid);
 
                         usersRef.addValueEventListener(new ValueEventListener() {
                             @Override
@@ -147,6 +163,34 @@ public class HomeFragment extends Fragment {
                         holder.txtEventStartDate.setText(startDate);
                         holder.txtEventEndDate.setText(endDate);
                         holder.txtEventPlace.setText(model.getPlace());
+
+                        holder.setLikeButtonStatus(eventKey);
+
+                        // if user unlike an event, then delete the corresponding row in Firebase
+                        // database
+                        holder.ivDropLike.setOnClickListener(v -> {
+                            alreadyLiked = true;
+
+                            likesRef.addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                    if (alreadyLiked) {
+                                        if (snapshot.child(eventKey).hasChild(currentUser.getUid())) {
+                                            // if user has already liked this post, then he must be
+                                            // unlike it this time, so remove the user who liked it.
+                                            likesRef.child(eventKey).child(currentUser.getUid()).removeValue();
+                                        } else {
+                                            // if user like the post
+                                            likesRef.child(eventKey).child(currentUser.getUid()).setValue("liked");
+                                        }
+                                        alreadyLiked = false;
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {}
+                            });
+                        });
                     }
 
                     @NonNull
@@ -167,6 +211,9 @@ public class HomeFragment extends Fragment {
         private ImageView ivDropLike, ivJoinEvent, ivEventLocation;
         private SliderView sliderView;
 
+        String currentUserId;
+        DatabaseReference localLikesRef;
+
         public EventsViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -181,6 +228,31 @@ public class HomeFragment extends Fragment {
             ivJoinEvent = itemView.findViewById(R.id.ivJoinEvent);
             ivEventLocation = itemView.findViewById(R.id.ivEventLocation);
             sliderView = itemView.findViewById(R.id.imageSlider);
+
+            currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            localLikesRef = FirebaseDatabase.getInstance().getReference().child(TBL_LIKES);
+        }
+
+        /**
+         * If user already like that event, then display the red heart. If not, display the
+         * empty heart.
+         * @param eventKey the event ID that user click like on
+         */
+        public void setLikeButtonStatus(final String eventKey) {
+            localLikesRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                    if (snapshot.child(eventKey).hasChild(currentUserId)) {
+                        ivDropLike.setImageResource(R.drawable.like);
+                    } else {
+                        ivDropLike.setImageResource(R.drawable.dislike);
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {}
+            });
         }
     }
 }
