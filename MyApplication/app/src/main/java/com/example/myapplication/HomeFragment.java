@@ -1,5 +1,8 @@
 package com.example.myapplication;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.myapplication.Adapter.SliderAdapter;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -32,7 +36,10 @@ import com.example.myapplication.Model.Event;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -46,8 +53,11 @@ public class HomeFragment extends Fragment {
     private static final String TBL_USERS = "Users";
     private static final String TBL_EVENTS = "Events";
     private static final String TBL_LIKES = "Likes";
+    private static final String TBL_JOINED_EVENTS = "JoinedEvents";
 
-    private boolean alreadyLiked = false;
+    private final String CHILD_JOINED_DATE = "JoinedDate";
+
+    private boolean alreadyLiked = false;   // already like the event or not
 
     // get the recycler view
     private RecyclerView rvAllEvents;
@@ -58,6 +68,7 @@ public class HomeFragment extends Fragment {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private DatabaseReference likesRef;
+    private DatabaseReference joinedEventsRef;
 
     public HomeFragment() {
         // required empty constructor
@@ -89,8 +100,8 @@ public class HomeFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         likesRef = FirebaseDatabase.getInstance().getReference().child(TBL_LIKES);
-
         eventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_EVENTS);
+        joinedEventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_JOINED_EVENTS);
 
         // handles recycler view initialization
         rvAllEvents = view.findViewById(R.id.rvAllEvents);
@@ -120,9 +131,11 @@ public class HomeFragment extends Fragment {
                         // get the event ID
                         final String eventKey = getRef(position).getKey();
 
+                        // get user UID
                         String uid = model.getUid();
                         DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child(TBL_USERS).child(uid);
 
+                        // get user profile image, full name and bio
                         usersRef.addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
@@ -139,9 +152,18 @@ public class HomeFragment extends Fragment {
                             public void onCancelled(@NonNull @NotNull DatabaseError error) {}
                         });
 
-                        final String eventIds = getRef(position).getKey();
+                        // get all event attributes
+                        String eventDescription = model.getDescription();
+                        String eventStartDate = model.getStart_date();
+                        String eventEndDate = model.getEnd_date();
+                        String eventName = model.getEvent_name();
+                        String eventPlace = model.getPlace();
+                        boolean isEventOnline = model.getIsOnline();
+                        long eventLimit = model.getLimit();
+                        // end getting al event's attributes
 
-                        eventsRef.child(eventIds).child("ImgUri_list").addValueEventListener(new ValueEventListener() {
+                        // display a list of event's images
+                        eventsRef.child(eventKey).child("ImgUri_list").addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
                                 ArrayList<String> allImagesUri = (ArrayList<String>) snapshot.getValue();
@@ -152,18 +174,23 @@ public class HomeFragment extends Fragment {
                             public void onCancelled(@NonNull @NotNull DatabaseError error) {}
                         });
 
-                        holder.txtEventName.setText(model.getEvent_name());
+                        // event name
+                        holder.txtEventName.setText(eventName);
 
-                        String[] splitStartString = model.getStart_date().split(" ");
-                        String[] splitEndString = model.getEnd_date().split(" ");
+                        // event start and end date
+                        String[] splitStartString = eventStartDate.split(" ");
+                        String[] splitEndString = eventEndDate.split(" ");
 
                         String startDate = splitStartString[1] + " " + getResources().getString(R.string.date) + " " + splitStartString[0];
                         String endDate = splitEndString[1] + " "  + getResources().getString(R.string.date) + " " + splitEndString[0];
 
                         holder.txtEventStartDate.setText(startDate);
                         holder.txtEventEndDate.setText(endDate);
-                        holder.txtEventPlace.setText(model.getPlace());
 
+                        // event place
+                        holder.txtEventPlace.setText(eventPlace);
+
+                        // set the like button
                         holder.setLikeButtonStatus(eventKey);
 
                         // if user unlike an event, then delete the corresponding row in Firebase
@@ -191,6 +218,52 @@ public class HomeFragment extends Fragment {
                                 public void onCancelled(@NonNull DatabaseError error) {}
                             });
                         });
+
+                        // set the join button
+                        holder.setJoinEventButtonStatus(currentUser.getUid(), eventKey);
+
+                        // user click the "join event" button
+                        holder.ivJoinEvent.setOnClickListener(v -> {
+
+                            if (holder.isAlreadyJoinedEvent) {
+                                // user has already joined that event, if user click
+                                // "join event" button again, it means user wants to
+                                // cancel that event.
+
+                                cancelJoiningEvent(currentUser.getUid(), eventKey);
+                            } else {
+                                // let user join the event
+                                joinEvent(currentUser.getUid(), eventKey);
+                            }
+                        });
+
+                        // redirect user to google map if the event is offline, redirect user to
+                        // web browser if event is online
+                        holder.ivEventLocation.setOnClickListener(v -> {
+
+                            if (isEventOnline) {
+                                // TODO: có nên cho sang trình duyệt không?
+                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(model.getPlace())));
+                            } else {
+                                startActivity(new Intent(Intent.ACTION_VIEW,
+                                        Uri.parse("geo:0,0?q=" + model.getPlace())));
+                            }
+                        });
+
+                        // user click on an event, redirect to EventDetailActivity
+                        holder.itemView.setOnClickListener(v -> {
+                            Intent eventDetail = new Intent(getActivity(), EventDetailActivity.class);
+                            eventDetail.putExtra("EventId", eventKey);
+                            eventDetail.putExtra("EventLimit", eventLimit);
+                            eventDetail.putExtra("EventDescription", eventDescription);
+                            eventDetail.putExtra("EventEndDate", eventEndDate);
+                            eventDetail.putExtra("EventName", eventName);
+                            eventDetail.putExtra("EventIsOnline", isEventOnline);
+                            eventDetail.putExtra("EventPlace", eventPlace);
+                            eventDetail.putExtra("EventStartDate", eventStartDate);
+                            eventDetail.putExtra("uid", uid);
+                            startActivity(eventDetail);
+                        });
                     }
 
                     @NonNull
@@ -211,8 +284,11 @@ public class HomeFragment extends Fragment {
         private ImageView ivDropLike, ivJoinEvent, ivEventLocation;
         private SliderView sliderView;
 
+        private boolean isAlreadyJoinedEvent;
+
         String currentUserId;
         DatabaseReference localLikesRef;
+        DatabaseReference localJoinedEventsRef;
 
         public EventsViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -231,6 +307,7 @@ public class HomeFragment extends Fragment {
 
             currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             localLikesRef = FirebaseDatabase.getInstance().getReference().child(TBL_LIKES);
+            localJoinedEventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_JOINED_EVENTS);
         }
 
         /**
@@ -254,5 +331,88 @@ public class HomeFragment extends Fragment {
                 public void onCancelled(@NonNull DatabaseError error) {}
             });
         }
+
+        /**
+         * If user already joined that event, then display the list icon with a tick. If not, display the
+         * list icon with plus sign. Also, change the status of the variable `isAlreadyJoinedEvent`
+         * @param currentUserId current user id.
+         * @param eventId event id.
+         */
+        public void setJoinEventButtonStatus(final String currentUserId, final String eventId) {
+            localJoinedEventsRef.child(currentUserId).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                    if (snapshot.hasChild(eventId)) {
+                        ivJoinEvent.setImageResource(R.drawable.ic_joined_event);
+                        isAlreadyJoinedEvent = true;
+                    } else {
+                        ivJoinEvent.setImageResource(R.drawable.join_event_icon);
+                        isAlreadyJoinedEvent = false;
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull @NotNull DatabaseError error) {}
+            });
+        }
+    }
+
+    private void cancelJoiningEvent(String currentUserId, String eventId) {
+        // delete at user side
+        joinedEventsRef.child(currentUserId).child(eventId).removeValue()
+                .addOnCompleteListener(task -> {
+                   if (task.isSuccessful()) {
+                       // delete at event side
+                       joinedEventsRef.child(eventId).child(currentUserId).removeValue()
+                               .addOnCompleteListener(task1 -> {
+                                   if (task1.isSuccessful()) {
+                                       Toast.makeText(getActivity(), "Canceled event successfully", Toast.LENGTH_SHORT).show();
+                                   } else {
+                                       Toast.makeText(getActivity(), "ERROR: You canceled the event, but event still have you", Toast.LENGTH_LONG).show();
+                                   }
+                               });
+                   } else {
+                       Toast.makeText(getActivity(), "ERROR: You cannot cancel joining the event", Toast.LENGTH_LONG).show();
+                   }
+                });
+    }
+
+    /**
+     * Let user join the event.
+     * @param currentUserId current user id
+     * @param eventId joining event id
+     */
+    private void joinEvent(String currentUserId, String eventId) {
+        String dateFormat = getCurrentDate();
+
+        joinedEventsRef.child(currentUserId).child(eventId).child(CHILD_JOINED_DATE)
+                .setValue(dateFormat).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                joinedEventsRef.child(eventId).child(currentUserId).child(CHILD_JOINED_DATE)
+                        .setValue(dateFormat).addOnCompleteListener(task1 -> {
+                    if (task1.isSuccessful()) {
+                        Toast.makeText(getActivity(), "Joined event successfully",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(getActivity(), "ERROR: You joined the event, but event cannot see you",
+                                Toast.LENGTH_LONG).show();
+                    }
+                });
+            } else {
+                Toast.makeText(getActivity(), "ERROR: You cannot join the event",
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    /**
+     * get the current date in the format: yyyy-MM-dd
+     * @return the current date in String
+     */
+    @SuppressLint("SimpleDateFormat")
+    public static String getCurrentDate() {
+        SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
+        Date now = new Date();
+        return sdfDate.format(now);
     }
 }
