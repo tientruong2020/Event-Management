@@ -43,7 +43,7 @@ public class Event {
         this.createAt = createAt;
     }
 
-    public boolean isOnline() {
+    public boolean getIsOnline() {
         return isOnline;
     }
 
