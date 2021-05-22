@@ -1,8 +1,10 @@
 package com.example.myapplication;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,9 +15,13 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.example.myapplication.Adapter.UserAdapter;
+import com.example.myapplication.Model.Event;
 import com.example.myapplication.Model.User;
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,9 +29,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView;
+import com.squareup.picasso.Picasso;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Author: Me Duc Thinh
@@ -42,16 +53,17 @@ import java.util.List;
 
 public class SearchFragment extends Fragment {
 
+    // reference to Events node in Database (Tuan)
+    private static final String NODE_EVENTS = "Events";
+    private DatabaseReference eventsRef;
+
     // Define RecyclerView to list user allow search user's full name action
     private RecyclerView recyclerViewUser;
     private List<User> mUsers;
     private UserAdapter userAdapter;
 
-    // Define RecyclerView to list event allow search event's #hastag action
-//    private RecyclerView recyclerViewTags;
-//    private List<String> mHashTags;
-//    private List<String> mHashTagsCount;
-//    private TagAdapter tagAdapter;
+    // search event results recycler view (Tuan)
+    private RecyclerView rvSearchEventResults;
 
     // Define search bar
     private SocialAutoCompleteTextView searchBar;
@@ -67,22 +79,21 @@ public class SearchFragment extends Fragment {
         // Attach layout manager to the RecyclerView
         recyclerViewUser.setLayoutManager(new LinearLayoutManager(getContext()));
 
-//        recyclerViewTags = view.findViewById(R.id.recycler_view_tags);
-//        // Optimize performance when scrolling
-//        recyclerViewTags.setHasFixedSize(true);
-//        // Attach layout manager to the RecyclerView
-//        recyclerViewTags.setLayoutManager(new LinearLayoutManager(getContext()));
-
-//        mHashTags = new ArrayList<>();
-//        mHashTagsCount = new ArrayList<>();
-//        tagAdapter = new TagAdapter(getContext() , mHashTags , mHashTagsCount);
-//        recyclerViewTags.setAdapter(tagAdapter);
-
         mUsers = new ArrayList<>();
         userAdapter = new UserAdapter(getContext() , mUsers , true);
         recyclerViewUser.setAdapter(userAdapter);
 
         searchBar = view.findViewById(R.id.search_bar);
+
+        // reference to the Events node in Database (Tuan)
+        eventsRef = FirebaseDatabase.getInstance().getReference().child(NODE_EVENTS);
+
+        // binding the Recycler View (Tuan)
+        rvSearchEventResults = view.findViewById(R.id.rvSearchEventResults);
+
+        // set some properties for search event Recycler (Tuan)
+        rvSearchEventResults.setHasFixedSize(true);
+        rvSearchEventResults.setLayoutManager(new LinearLayoutManager(getContext()));
 
         readUsers();
 //        readTags();
@@ -96,6 +107,7 @@ public class SearchFragment extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 searchUser(s.toString());
+                searchEvents(s.toString()); // Tuan
             }
 
             @Override
@@ -107,7 +119,7 @@ public class SearchFragment extends Fragment {
         return view;
     }
 
-//    private void readTags() {
+    //    private void readTags() {
 //
 //        FirebaseDatabase.getInstance().getReference().child("HashTags").addValueEventListener(new ValueEventListener() {
 //            @Override
@@ -191,4 +203,65 @@ public class SearchFragment extends Fragment {
 //
 //        tagAdapter.filter(mSearchTags , mSearchTagsCount);
 //    }
+
+    /** Modified by Tuan
+     * Search event based on event name
+     * @param eventName the passed in event name
+     */
+    private void searchEvents(String eventName) {
+        Query searchEventQuery = eventsRef.orderByChild("event_name").startAt(eventName).endAt(eventName + "\uf8ff");
+
+        FirebaseRecyclerOptions<Event> options = new FirebaseRecyclerOptions.Builder<Event>()
+                .setQuery(searchEventQuery, Event.class)
+                .build();
+
+        FirebaseRecyclerAdapter<Event, FindEventHolder> firebaseAdapter =
+                new FirebaseRecyclerAdapter<Event, FindEventHolder>(options) {
+                    @Override
+                    protected void onBindViewHolder(@NonNull SearchFragment.FindEventHolder holder, int position, @NonNull Event model) {
+
+                        final String clickedEventId = getRef(position).getKey();
+
+                        holder.txtSearchEventName.setText(model.getEvent_name());
+                        holder.txtSearchEventDescription.setText(model.getDescription());
+
+                        ArrayList<String> allImagesUri = model.getImgUri_list();
+                        Picasso.get().load(allImagesUri.get(0)).into(holder.civSearchEventImage);
+
+                        holder.itemView.setOnClickListener(v -> {
+                            // changing the activity and send the user ID along with the intent
+                            Intent clickPostIntent = new Intent(getContext(), ClickEventActivity.class);
+                            clickPostIntent.putExtra("EventKey", clickedEventId);
+                            startActivity(clickPostIntent);
+                        });
+
+                    }
+
+                    @NonNull
+                    @Override
+                    public FindEventHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.each_search_event_result_layout, parent, false);
+                        SearchFragment.FindEventHolder viewHolder = new SearchFragment.FindEventHolder(view);
+                        return viewHolder;
+                    }
+                };
+        rvSearchEventResults.setAdapter(firebaseAdapter);
+        firebaseAdapter.startListening();
+    }
+
+    /**
+     * Modified by Tuan
+     */
+    protected static class FindEventHolder extends RecyclerView.ViewHolder {
+        private TextView txtSearchEventName, txtSearchEventDescription;
+        private CircleImageView civSearchEventImage;
+
+        public FindEventHolder(@NonNull View itemView) {
+            super(itemView);
+
+            txtSearchEventName = itemView.findViewById(R.id.txtSearchEventName);
+            txtSearchEventDescription = itemView.findViewById(R.id.txtSearchEventDescription);
+            civSearchEventImage = itemView.findViewById(R.id.civSearchEventImage);
+        }
+    }
 }
