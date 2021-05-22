@@ -108,48 +108,51 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
+                    android:clickable="true"
                     android:paddingLeft="20dp"
-                    android:text="All Events" />
+                    android:text="All Events"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/profile_Your_Events"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
+                    android:clickable="true"
                     android:paddingLeft="20dp"
-                    android:text="Your Events" />
+                    android:text="Your Events"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
                 <TextView
                     android:id="@+id/profile_Invitation"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
+                    android:clickable="true"
                     android:paddingLeft="20dp"
-                    android:text="Invitiation" />
+                    android:text="Invitiation"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
 
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/profile_Recycler_View_All_Events"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:visibility="gone" />
+                android:layout_height="260dp"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/profile_Recycler_View_Your_Events"
                 android:layout_width="match_parent"
-                android:layout_height="354dp" />
+                android:layout_height="260dp"
+                android:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/profile_Recycler_View_Invitation"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="260dp"
                 android:visibility="gone" />
 
         </LinearLayout>

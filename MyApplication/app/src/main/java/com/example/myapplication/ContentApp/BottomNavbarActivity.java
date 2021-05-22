@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.widget.Button;
 
+import com.example.myapplication.Adapter.EventAdapter;
 import com.example.myapplication.CalendarFragment;
 import com.example.myapplication.HomeFragment;
 import com.example.myapplication.MainActivity;
@@ -101,4 +102,5 @@ public class BottomNavbarActivity extends AppCompatActivity {
         startActivity(intent);
         finish();
     }
+
 }
