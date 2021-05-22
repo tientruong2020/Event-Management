@@ -84,6 +84,11 @@ public class EditProfileActivity extends AppCompatActivity {
                 editUserEmail.setText(user.getUserEmail());
                 editUserBio.setText(user.getUserBio());
                 Picasso.get().load(user.getUserImageUrl()).into(editUserImageProfile);
+                if(user.getUserImageUrl().equalsIgnoreCase("default")){
+                    editChangePhoto.setVisibility(View.VISIBLE);
+                } else {
+                    editChangePhoto.setVisibility(View.GONE);
+                }
             }
 
             @Override

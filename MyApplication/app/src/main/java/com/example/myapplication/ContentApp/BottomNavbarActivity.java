@@ -78,20 +78,6 @@ public class BottomNavbarActivity extends AppCompatActivity {
                 }
             };
 
-    //When click on ImageUser Event post or comment => change view to profile user (include profileID in Context)
-//    Bundle intent = getIntent().getExtras();
-//    if (intent != null){
-//        String profileID = intent.getString("publisherID");
-//
-//        getSharedPreferences("PROFILE", MODE_PRIVATE).edit().putString("profileID", profileID).apply();
-//
-//        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_view_tag, new ProfileFragment()).commit();
-//        bottomNavigationView.setSelectedItemId(R.id.navigation_profile);
-//    } else {
-//        getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container_view_tag, new HomeFragment()).commit();
-//    }
-
-
     private void backToStart(){
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);

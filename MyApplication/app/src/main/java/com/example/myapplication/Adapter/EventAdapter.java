@@ -42,12 +42,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
     private Context mContext;
     private ArrayList<Event> mEvents;
 
-    // Define Interface to connect
-//    ItemClicked activity;
-//    public interface ItemClicked {
-//        void onItemClicked(int index);
-//    }
-
     public EventAdapter (Context mContext, ArrayList<Event> list){
         this.mContext = mContext;
         this.mEvents = list;
@@ -55,7 +49,6 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
         currentUser = mAuth.getCurrentUser();
         usersRef = FirebaseDatabase.getInstance().getReference().child(TBL_USERS);
         eventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_EVENTS);
-//        activity = (ItemClicked) mContext;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -85,9 +78,7 @@ public class EventAdapter extends RecyclerView.Adapter<EventAdapter.ViewHolder> 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    activity.onItemClicked(mEvents.indexOf((Event) itemView.getTag()));
-//                    Intent intent = new Intent(mContext, EventDetailActivity.class);
-//                    mContext.startActivity(intent);
+
                 }
             });
         }
