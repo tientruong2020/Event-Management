@@ -13,14 +13,16 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
-        <activity android:name=".ClickEventActivity"></activity>
+        <activity android:name=".ClickUserAcitivity"/>
+        <activity android:name=".ClickEventActivity" />
         <activity android:name=".EventDetailActivity" />
         <activity android:name=".ImgFullscreenActivity" />
         <activity android:name=".OptionActivity" />
         <activity
             android:name=".ContentApp.AddEventActivity"
             android:windowSoftInputMode="stateHidden|adjustPan" />
-        <activity android:name=".ContentApp.BottomNavbarActivity" />
+        <activity android:name=".ContentApp.BottomNavbarActivity"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity android:name=".Auth.SignUpActivity" />
         <activity android:name=".Auth.LoginActivity" />
         <activity android:name=".EditProfileActivity" />

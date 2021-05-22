@@ -40,15 +40,13 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Author: Me Duc Thinh
- * Modified date: 08/05/2021
+ * Modified date: 23/05/2021
  * Description:
- * 1. Create package: Adapter -> UserAdapter.
- * 2. Create package: Model -> User
- * 3. Add action see profile & edit profile to two class: ProfileFragment & EditProfileActivity
- * 4. Add action search user and see friend profile to class: SearchFragment
- * 5. Design the XML: activity_edit_profile, fragment_profile, fragment_search.
- * 6. Add some activity & user_permission to AndroidManifest.xml
- * 7. Add some dependencies to app build.gradle
+ * 1. Fix code search user by name.
+ * 2. Click user item show detail profile
+ * 3. Create Follow Table in DATA
+ * 4. Get list followers of user to show in recycler view
+ *
  */
 
 public class SearchFragment extends Fragment {
@@ -56,11 +54,12 @@ public class SearchFragment extends Fragment {
     // reference to Events node in Database (Tuan)
     private static final String NODE_EVENTS = "Events";
     private DatabaseReference eventsRef;
+    // reference to Users node in Database (Thinh_MD)
+    private static final String NODE_USERS = "Users";
+    private DatabaseReference usersRef;
 
     // Define RecyclerView to list user allow search user's full name action
     private RecyclerView recyclerViewUser;
-    private List<User> mUsers;
-    private UserAdapter userAdapter;
 
     // search event results recycler view (Tuan)
     private RecyclerView rvSearchEventResults;
@@ -73,15 +72,14 @@ public class SearchFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_search, container, false);
 
+        // reference to the Users node in Database (Thinh_MD)
+        usersRef = FirebaseDatabase.getInstance().getReference().child(NODE_USERS);
+        // Bind JAVA to XML
         recyclerViewUser = view.findViewById(R.id.recycler_view_users);
         // Optimize performance when scrolling
         recyclerViewUser.setHasFixedSize(true);
         // Attach layout manager to the RecyclerView
         recyclerViewUser.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        mUsers = new ArrayList<>();
-        userAdapter = new UserAdapter(getContext() , mUsers , true);
-        recyclerViewUser.setAdapter(userAdapter);
 
         searchBar = view.findViewById(R.id.search_bar);
 
@@ -95,114 +93,27 @@ public class SearchFragment extends Fragment {
         rvSearchEventResults.setHasFixedSize(true);
         rvSearchEventResults.setLayoutManager(new LinearLayoutManager(getContext()));
 
-        readUsers();
-//        readTags();
 
         searchBar.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                mUsers.clear();
+
             }
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchUser(s.toString());
+                searchUser(s.toString()); // Thinh_MD
                 searchEvents(s.toString()); // Tuan
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-//                filter(s.toString());
+
             }
         });
 
         return view;
     }
-
-    //    private void readTags() {
-//
-//        FirebaseDatabase.getInstance().getReference().child("HashTags").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                mHashTags.clear();
-//                mHashTagsCount.clear();
-//
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-//                    mHashTags.add(snapshot.getKey());
-//                    mHashTagsCount.add(snapshot.getChildrenCount() + "");
-//                }
-//
-//                tagAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-//
-//    }
-
-    private void readUsers() {
-
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Users");
-        reference.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (TextUtils.isEmpty(searchBar.getText().toString())){
-                    mUsers.clear();
-                    for (DataSnapshot snapshot : dataSnapshot.getChildren()){
-                        User user = snapshot.getValue(User.class);
-                        mUsers.add(user);
-                    }
-
-                    userAdapter.notifyDataSetChanged();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-    }
-
-    private void searchUser (String s) {
-        Query query = FirebaseDatabase.getInstance().getReference().child("Users")
-                .orderByChild("userFullName").startAt(s).endAt(s + "\uf8ff");
-
-        query.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                mUsers.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    User user = snapshot.getValue(User.class);
-                    mUsers.add(user);
-                }
-                userAdapter.notifyDataSetChanged();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
-
-//    private void filter (String text) {
-//        List<String> mSearchTags = new ArrayList<>();
-//        List<String> mSearchTagsCount = new ArrayList<>();
-//
-//        for (String s : mHashTags) {
-//            if (s.toLowerCase().contains(text.toLowerCase())){
-//                mSearchTags.add(s);
-//                mSearchTagsCount.add(mHashTagsCount.get(mHashTags.indexOf(s)));
-//            }
-//        }
-//
-//        tagAdapter.filter(mSearchTags , mSearchTagsCount);
-//    }
 
     /** Modified by Tuan
      * Search event based on event name
@@ -262,6 +173,67 @@ public class SearchFragment extends Fragment {
             txtSearchEventName = itemView.findViewById(R.id.txtSearchEventName);
             txtSearchEventDescription = itemView.findViewById(R.id.txtSearchEventDescription);
             civSearchEventImage = itemView.findViewById(R.id.civSearchEventImage);
+        }
+    }
+
+    /** Modified by Thinh_MD
+     * Search user based on user name
+     * @param userName the passed in user name
+     */
+    private void searchUser(String userName) {
+        Query searchUserQuery = usersRef.orderByChild("userFullName").startAt(userName).endAt(userName + "\uf8ff");
+
+        FirebaseRecyclerOptions<User> options = new FirebaseRecyclerOptions.Builder<User>()
+                .setQuery(searchUserQuery, User.class)
+                .build();
+
+        FirebaseRecyclerAdapter<User, FindUserHolder> firebaseAdapter =
+                new FirebaseRecyclerAdapter<User, FindUserHolder>(options) {
+                    @Override
+                    protected void onBindViewHolder(@NonNull SearchFragment.FindUserHolder holder, int position, @NonNull User model) {
+
+                        final String clickedUserId = getRef(position).getKey();
+
+                        holder.txtSearchUserName.setText(model.getUserFullName());
+                        holder.txtSearchUserEmail.setText(model.getUserEmail());
+
+                        String allImagesUri = model.getUserImageUrl();
+                        Picasso.get().load(allImagesUri).into(holder.civSearchUserImage);
+
+                        holder.itemView.setOnClickListener(v -> {
+                            // changing the activity and send the user ID along with the intent
+                            Intent clickPostIntent = new Intent(getContext(), ClickUserAcitivity.class);
+                            clickPostIntent.putExtra("UserKey", clickedUserId);
+                            startActivity(clickPostIntent);
+                        });
+
+                    }
+
+                    @NonNull
+                    @Override
+                    public FindUserHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_item, parent, false);
+                        SearchFragment.FindUserHolder viewHolder = new SearchFragment.FindUserHolder(view);
+                        return viewHolder;
+                    }
+                };
+        recyclerViewUser.setAdapter(firebaseAdapter);
+        firebaseAdapter.startListening();
+    }
+
+    /**
+     * Modified by Thinh_MD
+     */
+    protected static class FindUserHolder extends RecyclerView.ViewHolder {
+        private TextView txtSearchUserName, txtSearchUserEmail;
+        private CircleImageView civSearchUserImage;
+
+        public FindUserHolder(@NonNull View itemView) {
+            super(itemView);
+
+            txtSearchUserName = itemView.findViewById(R.id.full_name_profile);
+            txtSearchUserEmail = itemView.findViewById(R.id.user_email_profile);
+            civSearchUserImage = itemView.findViewById(R.id.image_profile);
         }
     }
 }
