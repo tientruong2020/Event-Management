@@ -53,7 +53,7 @@ public class ProfileFragment extends Fragment {
     private static final String TBL_JOINED_EVENTS = "JoinedEvents";
     private static final String TBL_EVENTS = "Events";
     private static final String TBL_USERS = "Users";
-    private static final String TBL_FOLLOWS = "Follow";
+    private static final String TBL_FOLLOW = "Follow";
 
     // Define JAVA UI
     private RecyclerView rvAllMyEvents; // tuan
@@ -91,7 +91,7 @@ public class ProfileFragment extends Fragment {
         eventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_EVENTS);
         joinedEventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_JOINED_EVENTS);
         usersRef = FirebaseDatabase.getInstance().getReference().child(TBL_USERS);
-        followRef = FirebaseDatabase.getInstance().getReference().child(TBL_FOLLOWS).child(userProfileID).child("Followers");
+        followRef = FirebaseDatabase.getInstance().getReference().child(TBL_USERS).child(userProfileID).child(TBL_FOLLOW).child("Followers");
 
         // Bind Java to XML
         optionToolBar = view.findViewById(R.id.profile_Options);
@@ -164,7 +164,7 @@ public class ProfileFragment extends Fragment {
         userFollowers.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                rvAllJoinedEvents.setVisibility(View.GONE);
+                rvAllMyEvents.setVisibility(View.GONE);
                 rvAllJoinedEvents.setVisibility(View.GONE);
                 recyclerViewFollowers.setVisibility(View.VISIBLE);
             }

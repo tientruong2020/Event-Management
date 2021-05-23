@@ -9,26 +9,33 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/bar"
-        android:background="?android:attr/windowBackground">
+        android:background="@color/bgNavigation">
+<!--        android:background="?android:attr/windowBackground"-->
 
         <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/toolbar"
-            android:background="?android:attr/windowBackground">
+            android:background="@color/bgNavigation">
+<!--            android:background="?android:attr/windowBackground"-->
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_search"/>
-
-            <com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/search_bar"
-                android:background="@android:color/transparent"
-                android:hint="Search..."
-                android:layout_marginStart="10dp"/>
+                android:layout_height="match_parent"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_search"/>
+
+                <com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/search_bar"
+                    android:background="@android:color/transparent"
+                    android:hint="Search..."
+                    android:layout_marginStart="20dp"/>
+            </LinearLayout>
 
         </androidx.appcompat.widget.Toolbar>
 
@@ -46,13 +53,13 @@
 
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="300dp"
                 android:id="@+id/recycler_view_users"
                 android:layout_below="@id/bar"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="300dp"
                 android:id="@+id/rvSearchEventResults"
                 android:layout_below="@id/recycler_view_users"
                 android:layout_marginTop="5dp"/>

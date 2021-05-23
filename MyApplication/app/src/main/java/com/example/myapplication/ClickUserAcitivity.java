@@ -318,25 +318,25 @@ public class ClickUserAcitivity extends AppCompatActivity {
 
     // Add friend follower
     private void addFollowers(String friendID, String userID) {
-        FirebaseDatabase.getInstance().getReference().child("Follow").
-                child(friendID).child("Followers").child(userID).setValue(true);
+        FirebaseDatabase.getInstance().getReference().child("Users").
+                child(friendID).child("Follow").child("Followers").child(userID).setValue(true);
     }
 
     // Remove friend follower
     private void removeFollowers(String friendID, String userID) {
-        FirebaseDatabase.getInstance().getReference().child("Follow").
-                child(friendID).child("Followers").child(userID).removeValue();
+        FirebaseDatabase.getInstance().getReference().child("Users").
+                child(friendID).child("Follow").child("Followers").child(userID).removeValue();
     }
 
     // Add user following
     private void addFollowing(String userID, String friendID) {
-        FirebaseDatabase.getInstance().getReference().child("Follow").
-                child(userID).child("Following").child(friendID).setValue(true);
+        FirebaseDatabase.getInstance().getReference().child("Users").
+                child(userID).child("Follow").child("Following").child(friendID).setValue(true);
     }
 
     // Remove user following
     private void removeFollowing(String userID, String friendID) {
-        FirebaseDatabase.getInstance().getReference().child("Follow").
-                child(userID).child("Following").child(friendID).removeValue();
+        FirebaseDatabase.getInstance().getReference().child("Users").
+                child(userID).child("Follow").child("Following").child(friendID).removeValue();
     }
 }

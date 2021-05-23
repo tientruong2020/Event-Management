@@ -46,6 +46,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * 2. Click user item show detail profile
  * 3. Create Follow Table in DATA
  * 4. Get list followers of user to show in recycler view
+ * 5. Adjust some XML properties
  *
  */
 
@@ -108,7 +109,8 @@ public class SearchFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-
+                searchUser(s.toString()); // Thinh_MD
+                searchEvents(s.toString()); // Tuan
             }
         });
 
