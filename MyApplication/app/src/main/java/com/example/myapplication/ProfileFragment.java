@@ -39,11 +39,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Author: Me Duc Thinh
- * Modified date: 09/05/2021
+ * Modified date: 23/05/2021
  * Description:
- * 1. Add drawable xml for profile/edit_profile/setting screen.
- * 2. Format ID XML and replace in JAVA code
- * 3. Rework with Google Sign in method
+ * 1. Fix code search user by name.
+ * 2. Click user item show detail profile
+ * 3. Create Follow Table in DATA
+ * 4. Get list followers of user to show in recycler view
  *
  */
 
@@ -51,15 +52,13 @@ public class ProfileFragment extends Fragment {
 
     private static final String TBL_JOINED_EVENTS = "JoinedEvents";
     private static final String TBL_EVENTS = "Events";
-    // private static final String TBL_USERS = "Users";
+    private static final String TBL_USERS = "Users";
+    private static final String TBL_FOLLOW = "Follow";
 
     // Define JAVA UI
     private RecyclerView rvAllMyEvents; // tuan
     private RecyclerView rvAllJoinedEvents; // tuan
-
-    private RecyclerView recyclerViewInvitation;
-//    private EventAdapter eventAdapterInvitation;
-//    private List<Event> invitation;
+    private RecyclerView recyclerViewFollowers; // Thinh_MD
 
     private ImageView optionToolBar;
     private CircleImageView userImageProfile;
@@ -69,7 +68,7 @@ public class ProfileFragment extends Fragment {
 
     private TextView userAllEvents;
     private TextView userYourEvents;
-    private TextView userInvitation;
+    private TextView userFollowers;
 
     private Button editProfile;
 
@@ -78,26 +77,21 @@ public class ProfileFragment extends Fragment {
 
     private DatabaseReference eventsRef;
     private DatabaseReference joinedEventsRef;
+    private DatabaseReference usersRef;
+    private DatabaseReference followRef;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        userProfileID = firebaseUser.getUid();
+
         eventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_EVENTS);
         joinedEventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_JOINED_EVENTS);
-
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-
-        // Get profile ID from context to show profile
-        String dataTrans = getContext().getSharedPreferences("PROFILE", Context.MODE_PRIVATE).getString("userProfileID", "none");
-
-        if (dataTrans.equals("none")){
-            userProfileID = firebaseUser.getUid();
-        } else {
-            userProfileID = dataTrans;
-            getContext().getSharedPreferences("PROFILE", Context.MODE_PRIVATE).edit().clear().apply();
-        }
+        usersRef = FirebaseDatabase.getInstance().getReference().child(TBL_USERS);
+        followRef = FirebaseDatabase.getInstance().getReference().child(TBL_USERS).child(userProfileID).child(TBL_FOLLOW).child("Followers");
 
         // Bind Java to XML
         optionToolBar = view.findViewById(R.id.profile_Options);
@@ -107,32 +101,19 @@ public class ProfileFragment extends Fragment {
         userEmail = view.findViewById(R.id.profile_User_Email);
         userAllEvents = view.findViewById(R.id.profile_All_Events);
         userYourEvents = view.findViewById(R.id.profile_Your_Events);
-        userInvitation = view.findViewById(R.id.profile_Invitation);
+        userFollowers = view.findViewById(R.id.profile_Followers);
         editProfile = view.findViewById(R.id.profile_Edit_Button);
 
         rvAllMyEvents = view.findViewById(R.id.rvAllMyEvents);
         rvAllJoinedEvents = view.findViewById(R.id.rvAllJoinedEvents);
-
-        recyclerViewInvitation = view.findViewById(R.id.profile_Recycler_View_Invitation);
-        recyclerViewInvitation.setHasFixedSize(true);
-        recyclerViewInvitation.setLayoutManager(new GridLayoutManager(getContext(), 3));
-//        invitation = new ArrayList<>();
-//        eventAdapterInvitation = new EventAdapter(getContext(), invitation);
-//        recyclerViewInvitation.setAdapter(eventAdapterInvitation);
+        recyclerViewFollowers = view.findViewById(R.id.profile_Recycler_View_Followers); //Thinh_MD
 
         userInfo();
-        getCountAllEvents();
-        getAllEvents();
-        getCountYourEvents();
-        getYourEvents();
-        getCountInvitation();
-        getInvitation();
-
-        if (userProfileID.equals(firebaseUser.getUid())) {
-            editProfile.setText("Edit profile");
-        } else {
-            checkFollowingStatus();
-        }
+        //Thinh_MD
+        recyclerViewFollowers.setHasFixedSize(true);
+        recyclerViewFollowers.setLayoutManager(new LinearLayoutManager(getContext()));
+        displayFollowers();
+        // end Thinh_MD
 
         optionToolBar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,74 +125,9 @@ public class ProfileFragment extends Fragment {
         editProfile.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String btnText = editProfile.getText().toString();
-
-                if (btnText.equals("Edit profile")) {
-                    startActivity(new Intent(getContext(), EditProfileActivity.class));
-                } else {
-                    if (btnText.equals("follow")) {
-                        FirebaseDatabase.getInstance().getReference().child("Follow").child(firebaseUser.getUid())
-                                .child("following").child(userProfileID).setValue(true);
-
-                        FirebaseDatabase.getInstance().getReference().child("Follow").child(userProfileID)
-                                .child("followers").child(firebaseUser.getUid()).setValue(true);
-                    } else {
-                        FirebaseDatabase.getInstance().getReference().child("Follow").child(firebaseUser.getUid())
-                                .child("following").child(userProfileID).removeValue();
-
-                        FirebaseDatabase.getInstance().getReference().child("Follow").child(userProfileID)
-                                .child("followers").child(firebaseUser.getUid()).removeValue();
-                    }
-                }
+                startActivity(new Intent(getContext(), EditProfileActivity.class));
             }
         });
-
-        userAllEvents.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rvAllMyEvents.setVisibility(View.VISIBLE);
-                rvAllJoinedEvents.setVisibility(View.GONE);
-                recyclerViewInvitation.setVisibility(View.GONE);
-            }
-        });
-
-        userYourEvents.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rvAllMyEvents.setVisibility(View.GONE);
-                rvAllJoinedEvents.setVisibility(View.VISIBLE);
-                recyclerViewInvitation.setVisibility(View.GONE);
-            }
-        });
-
-        userInvitation.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rvAllJoinedEvents.setVisibility(View.GONE);
-                rvAllJoinedEvents.setVisibility(View.GONE);
-                recyclerViewInvitation.setVisibility(View.VISIBLE);
-            }
-        });
-
-//        followers.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(getContext(), FollowersActivity.class);
-//                intent.putExtra("id", profileID);
-//                intent.putExtra("title", "followers");
-//                startActivity(intent);
-//            }
-//        });
-
-//        following.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent intent = new Intent(getContext(), FollowersActivity.class);
-//                intent.putExtra("id", profileID);
-//                intent.putExtra("title", "followings");
-//                startActivity(intent);
-//            }
-//        });
 
         // Tuan
         rvAllMyEvents.setHasFixedSize(true);
@@ -222,6 +138,37 @@ public class ProfileFragment extends Fragment {
         rvAllJoinedEvents.setLayoutManager(new LinearLayoutManager(getContext()));
         displayAllMyJoinedEvents();
         // end Tuan
+
+        rvAllMyEvents.setVisibility(View.VISIBLE);
+        rvAllJoinedEvents.setVisibility(View.GONE);
+        recyclerViewFollowers.setVisibility(View.GONE);
+
+        userAllEvents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rvAllMyEvents.setVisibility(View.VISIBLE);
+                rvAllJoinedEvents.setVisibility(View.GONE);
+                recyclerViewFollowers.setVisibility(View.GONE);
+            }
+        });
+
+        userYourEvents.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rvAllMyEvents.setVisibility(View.GONE);
+                rvAllJoinedEvents.setVisibility(View.VISIBLE);
+                recyclerViewFollowers.setVisibility(View.GONE);
+            }
+        });
+
+        userFollowers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rvAllMyEvents.setVisibility(View.GONE);
+                rvAllJoinedEvents.setVisibility(View.GONE);
+                recyclerViewFollowers.setVisibility(View.VISIBLE);
+            }
+        });
 
         return view;
     }
@@ -243,97 +190,6 @@ public class ProfileFragment extends Fragment {
 
             }
         });
-    }
-
-//    private void getFollowersAndFollowingCount() {
-//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Follow").child(userProfileID);
-//
-//        ref.child("followers").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                userFollowers.setText("" + dataSnapshot.getChildrenCount());
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-//
-//        ref.child("following").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                userFollowing.setText("" + dataSnapshot.getChildrenCount());
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-//    }
-
-    private void getCountAllEvents() {
-//        FirebaseDatabase.getInstance().getReference().child("Posts").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                int counter = 0;
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    Event event = snapshot.getValue(Event.class);
-//
-//                    if (event.getEventPublisher().equals(userProfileID)) counter ++;
-//                }
-//
-//                userPosts.setText(String.valueOf(counter));
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-    }
-
-    private void getCountYourEvents() {
-//        FirebaseDatabase.getInstance().getReference().child("Posts").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                int counter = 0;
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    Event event = snapshot.getValue(Event.class);
-//
-//                    if (event.getEventPublisher().equals(userProfileID)) counter ++;
-//                }
-//
-//                userPosts.setText(String.valueOf(counter));
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
-    }
-
-    private void getCountInvitation() {
-//        FirebaseDatabase.getInstance().getReference().child("Invitation").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                int counter = 0;
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    Event event = snapshot.getValue(Event.class);
-//
-//                    if (event.getEventPublisher().equals(userProfileID)) counter ++;
-//                }
-//
-//                userPosts.setText(String.valueOf(counter));
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError databaseError) {
-//
-//            }
-//        });
     }
 
     /**
@@ -473,35 +329,86 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Thinh_MD
+     */
+    private void displayFollowers() {
+        FirebaseRecyclerOptions<User> options = new FirebaseRecyclerOptions.Builder<User>()
+                .setQuery(usersRef, User.class)
+                .build();
 
+        FirebaseRecyclerAdapter<User, ProfileFragment.FindUserHolder> firebaseAdapter =
+                new FirebaseRecyclerAdapter<User, FindUserHolder>(options) {
+                    @Override
+                    protected void onBindViewHolder(@NonNull ProfileFragment.FindUserHolder holder, int position, @NonNull User model) {
 
-    private void getAllEvents() {
+                        final String clickedUserId = getRef(position).getKey();
 
+                        followRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                                if (snapshot.exists()) {
+                                    if (snapshot.hasChild(model.getUserID())) {
+                                        holder.txtSearchUserName.setText(model.getUserFullName());
+                                        holder.txtSearchUserEmail.setText(model.getUserEmail());
+
+                                        String allImagesUri = model.getUserImageUrl();
+                                        Picasso.get().load(allImagesUri).into(holder.civSearchUserImage);
+
+                                        holder.itemView.setOnClickListener(v -> {
+                                            // changing the activity and send the user ID along with the intent
+                                            Intent clickPostIntent = new Intent(getContext(), ClickUserAcitivity.class);
+                                            clickPostIntent.putExtra("UserKey", clickedUserId);
+                                            clickPostIntent.putExtra("FriendID", model.getUserID());
+                                            startActivity(clickPostIntent);
+                                        });
+                                    } else {
+                                        holder.itemView.setVisibility(View.GONE);
+                                        ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+                                        params.height = 0;
+                                        params.width = 0;
+                                        holder.itemView.setLayoutParams(params);
+                                    }
+                                } else {
+                                    holder.itemView.setVisibility(View.GONE);
+                                    ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+                                    params.height = 0;
+                                    params.width = 0;
+                                    holder.itemView.setLayoutParams(params);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull @NotNull DatabaseError error) {}
+                        });
+                    }
+
+                    @NonNull
+                    @Override
+                    public ProfileFragment.FindUserHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_item, parent, false);
+                        ProfileFragment.FindUserHolder viewHolder = new ProfileFragment.FindUserHolder(view);
+                        return viewHolder;
+                    }
+                };
+        recyclerViewFollowers.setAdapter(firebaseAdapter);
+        firebaseAdapter.startListening();
     }
 
-    private void getYourEvents() {
+    /**
+     * Modified by Thinh_MD
+     */
+    protected static class FindUserHolder extends RecyclerView.ViewHolder {
+        private TextView txtSearchUserName, txtSearchUserEmail;
+        private CircleImageView civSearchUserImage;
 
+        public FindUserHolder(@NonNull View itemView) {
+            super(itemView);
+
+            txtSearchUserName = itemView.findViewById(R.id.full_name_profile);
+            txtSearchUserEmail = itemView.findViewById(R.id.user_email_profile);
+            civSearchUserImage = itemView.findViewById(R.id.image_profile);
+        }
     }
 
-    private void getInvitation() {
-
-    }
-
-    private void checkFollowingStatus() {
-        FirebaseDatabase.getInstance().getReference().child("Follow").child(firebaseUser.getUid()).child("Following").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (dataSnapshot.child(userProfileID).exists()) {
-                    editProfile.setText("Following");
-                } else {
-                    editProfile.setText("Follow");
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-    }
 }

@@ -37,11 +37,12 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Author: Me Duc Thinh
- * Modified date: 09/05/2021
+ * Modified date: 23/05/2021
  * Description:
- * 1. Add drawable xml for profile/edit_profile/setting screen.
- * 2. Format ID XML and replace in JAVA code
- * 3. Rework with Google Sign in method
+ * 1. Fix code search user by name.
+ * 2. Click user item show detail profile
+ * 3. Create Follow Table in DATA
+ * 4. Get list followers of user to show in recycler view
  *
  */
 
@@ -84,6 +85,11 @@ public class EditProfileActivity extends AppCompatActivity {
                 editUserEmail.setText(user.getUserEmail());
                 editUserBio.setText(user.getUserBio());
                 Picasso.get().load(user.getUserImageUrl()).into(editUserImageProfile);
+                if(user.getUserImageUrl().equalsIgnoreCase("default")){
+                    editChangePhoto.setVisibility(View.VISIBLE);
+                } else {
+                    editChangePhoto.setVisibility(View.GONE);
+                }
             }
 
             @Override
