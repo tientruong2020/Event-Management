@@ -109,6 +109,11 @@ public class ProfileFragment extends Fragment {
         recyclerViewFollowers = view.findViewById(R.id.profile_Recycler_View_Followers); //Thinh_MD
 
         userInfo();
+        //Thinh_MD
+        recyclerViewFollowers.setHasFixedSize(true);
+        recyclerViewFollowers.setLayoutManager(new LinearLayoutManager(getContext()));
+        displayFollowers();
+        // end Thinh_MD
 
         optionToolBar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,6 +128,20 @@ public class ProfileFragment extends Fragment {
                 startActivity(new Intent(getContext(), EditProfileActivity.class));
             }
         });
+
+        // Tuan
+        rvAllMyEvents.setHasFixedSize(true);
+        rvAllMyEvents.setLayoutManager(new LinearLayoutManager(getContext()));
+        displayAllMyEvents();
+
+        rvAllJoinedEvents.setHasFixedSize(true);
+        rvAllJoinedEvents.setLayoutManager(new LinearLayoutManager(getContext()));
+        displayAllMyJoinedEvents();
+        // end Tuan
+
+        rvAllMyEvents.setVisibility(View.VISIBLE);
+        rvAllJoinedEvents.setVisibility(View.GONE);
+        recyclerViewFollowers.setVisibility(View.GONE);
 
         userAllEvents.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -150,22 +169,6 @@ public class ProfileFragment extends Fragment {
                 recyclerViewFollowers.setVisibility(View.VISIBLE);
             }
         });
-
-        // Tuan
-        rvAllMyEvents.setHasFixedSize(true);
-        rvAllMyEvents.setLayoutManager(new LinearLayoutManager(getContext()));
-        displayAllMyEvents();
-
-        rvAllJoinedEvents.setHasFixedSize(true);
-        rvAllJoinedEvents.setLayoutManager(new LinearLayoutManager(getContext()));
-        displayAllMyJoinedEvents();
-        // end Tuan
-
-        //Thinh_MD
-        recyclerViewFollowers.setHasFixedSize(true);
-        recyclerViewFollowers.setLayoutManager(new LinearLayoutManager(getContext()));
-        displayFollowers();
-        // end Thinh_MD
 
         return view;
     }
@@ -356,6 +359,7 @@ public class ProfileFragment extends Fragment {
                                             // changing the activity and send the user ID along with the intent
                                             Intent clickPostIntent = new Intent(getContext(), ClickUserAcitivity.class);
                                             clickPostIntent.putExtra("UserKey", clickedUserId);
+                                            clickPostIntent.putExtra("FriendID", model.getUserID());
                                             startActivity(clickPostIntent);
                                         });
                                     } else {

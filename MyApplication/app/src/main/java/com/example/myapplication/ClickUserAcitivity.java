@@ -44,6 +44,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
  * 2. Click user item show detail profile
  * 3. Create Follow Table in DATA
  * 4. Get list followers of user to show in recycler view
+ * 5. Show List Event/Joined events of Friend in Friend Profile
  *
  */
 
@@ -72,6 +73,7 @@ public class ClickUserAcitivity extends AppCompatActivity {
     private String currentUserId;
 
     private String userProfileID;
+    private String friendProfileID; // Get this ID to preference firebase
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +82,8 @@ public class ClickUserAcitivity extends AppCompatActivity {
 
         // get user data from previous activity
         userProfileID = getIntent().getStringExtra("UserKey");
+        friendProfileID = getIntent().getStringExtra("FriendID");
+        System.out.println("friend ID: "+userProfileID);
 
         mAuth = FirebaseAuth.getInstance();
         currentUserId = mAuth.getCurrentUser().getUid();
@@ -138,11 +142,11 @@ public class ClickUserAcitivity extends AppCompatActivity {
         });
 
         recyclerViewAllMyEvents.setHasFixedSize(true);
-//        recyclerViewAllMyEvents.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerViewAllMyEvents.setLayoutManager(new LinearLayoutManager(ClickUserAcitivity.this));
         displayMyEvents();
 
         recyclerViewJoinedEvents.setHasFixedSize(true);
-//        recyclerViewJoinedEvents.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerViewJoinedEvents.setLayoutManager(new LinearLayoutManager(ClickUserAcitivity.this));
         displayJoinedEvents();
     }
 
@@ -167,131 +171,131 @@ public class ClickUserAcitivity extends AppCompatActivity {
     }
 
     private void displayMyEvents() {
-//        FirebaseRecyclerOptions<Event> options = new FirebaseRecyclerOptions.Builder<Event>()
-//                .setQuery(eventsRef, Event.class)
-//                .build();
-//
-//        FirebaseRecyclerAdapter<Event, ProfileFragment.FindEventHolder> firebaseAdapter =
-//                new FirebaseRecyclerAdapter<Event, ProfileFragment.FindEventHolder>(options) {
-//                    @Override
-//                    protected void onBindViewHolder(@NonNull ProfileFragment.FindEventHolder holder, int position, @NonNull Event model) {
-//
-//                        final String clickedEventId = getRef(position).getKey();
-//
-//                        String creatorId = model.getUid();
-//                        if (creatorId.equals(userProfileID)) {
-//                            ArrayList<String> allImagesUri = model.getImgUri_list();
-//                            Picasso.get().load(allImagesUri.get(0)).into(holder.civSearchEventImage);
-//
-//                            holder.itemView.setVisibility(View.VISIBLE);
-//
-//                            holder.txtSearchEventName.setText(model.getEvent_name());
-//                            holder.txtSearchEventDescription.setText(model.getDescription());
-//
-//                            holder.itemView.setOnClickListener(v -> {
-//                                // changing the activity and send the user ID along with the intent
-//                                Intent clickPostIntent = new Intent(getContext(), ClickEventActivity.class);
-//                                clickPostIntent.putExtra("EventKey", clickedEventId);
-//                                startActivity(clickPostIntent);
-//                            });
-//                        } else {
-//                            holder.itemView.setVisibility(View.GONE);
-//                            ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
-//                            params.height = 0;
-//                            params.width = 0;
-//                            holder.itemView.setLayoutParams(params);
-//                        }
-//                    }
-//
-//                    @NonNull
-//                    @Override
-//                    public ProfileFragment.FindEventHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.each_search_event_result_layout, parent, false);
-//                        ProfileFragment.FindEventHolder viewHolder = new ProfileFragment.FindEventHolder(view);
-//                        return viewHolder;
-//                    }
-//                };
-//        recyclerViewAllMyEvents.setAdapter(firebaseAdapter);
-//        firebaseAdapter.startListening();
+        FirebaseRecyclerOptions<Event> options = new FirebaseRecyclerOptions.Builder<Event>()
+                .setQuery(eventsRef, Event.class)
+                .build();
+
+        FirebaseRecyclerAdapter<Event, ClickUserAcitivity.FindEventHolder> firebaseAdapter =
+                new FirebaseRecyclerAdapter<Event, ClickUserAcitivity.FindEventHolder>(options) {
+                    @Override
+                    protected void onBindViewHolder(@NonNull ClickUserAcitivity.FindEventHolder holder, int position, @NonNull Event model) {
+
+                        final String clickedEventId = getRef(position).getKey();
+
+                        String creatorId = model.getUid();
+                        if (creatorId.equals(userProfileID)) {
+                            ArrayList<String> allImagesUri = model.getImgUri_list();
+                            Picasso.get().load(allImagesUri.get(0)).into(holder.civSearchEventImage);
+
+                            holder.itemView.setVisibility(View.VISIBLE);
+
+                            holder.txtSearchEventName.setText(model.getEvent_name());
+                            holder.txtSearchEventDescription.setText(model.getDescription());
+
+                            holder.itemView.setOnClickListener(v -> {
+                                // changing the activity and send the user ID along with the intent
+                                Intent clickPostIntent = new Intent(ClickUserAcitivity.this, ClickEventActivity.class);
+                                clickPostIntent.putExtra("EventKey", clickedEventId);
+                                startActivity(clickPostIntent);
+                            });
+                        } else {
+                            holder.itemView.setVisibility(View.GONE);
+                            ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+                            params.height = 0;
+                            params.width = 0;
+                            holder.itemView.setLayoutParams(params);
+                        }
+                    }
+
+                    @NonNull
+                    @Override
+                    public ClickUserAcitivity.FindEventHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.each_search_event_result_layout, parent, false);
+                        ClickUserAcitivity.FindEventHolder viewHolder = new ClickUserAcitivity.FindEventHolder(view);
+                        return viewHolder;
+                    }
+                };
+        recyclerViewAllMyEvents.setAdapter(firebaseAdapter);
+        firebaseAdapter.startListening();
     }
 
     private void displayJoinedEvents() {
-//        FirebaseRecyclerOptions<Event> options = new FirebaseRecyclerOptions.Builder<Event>()
-//                .setQuery(eventsRef, Event.class)
-//                .build();
-//
-//        FirebaseRecyclerAdapter<Event, ProfileFragment.FindEventHolder> firebaseAdapter =
-//                new FirebaseRecyclerAdapter<Event, ProfileFragment.FindEventHolder>(options) {
-//                    @Override
-//                    protected void onBindViewHolder(@NonNull ProfileFragment.FindEventHolder holder, int position, @NonNull Event model) {
-//
-//                        final String clickedEventId = getRef(position).getKey();
-//
-//
-//                        joinedEventsRef.child(clickedEventId).addValueEventListener(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-//                                if (snapshot.exists()) {
-//                                    if (snapshot.hasChild(userProfileID)) {
-//
-//                                        ArrayList<String> allImagesUri = model.getImgUri_list();
-//                                        Picasso.get().load(allImagesUri.get(0)).into(holder.civSearchEventImage);
-//
-//                                        holder.itemView.setVisibility(View.VISIBLE);
-//
-//                                        holder.txtSearchEventName.setText(model.getEvent_name());
-//                                        holder.txtSearchEventDescription.setText(model.getDescription());
-//
-//                                        holder.itemView.setOnClickListener(v -> {
-//                                            // changing the activity and send the user ID along with the intent
-//                                            Intent clickPostIntent = new Intent(getContext(), ClickEventActivity.class);
-//                                            clickPostIntent.putExtra("EventKey", clickedEventId);
-//                                            startActivity(clickPostIntent);
-//                                        });
-//                                    } else {
-//                                        holder.itemView.setVisibility(View.GONE);
-//                                        ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
-//                                        params.height = 0;
-//                                        params.width = 0;
-//                                        holder.itemView.setLayoutParams(params);
-//                                    }
-//                                } else {
-//                                    holder.itemView.setVisibility(View.GONE);
-//                                    ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
-//                                    params.height = 0;
-//                                    params.width = 0;
-//                                    holder.itemView.setLayoutParams(params);
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(@NonNull @NotNull DatabaseError error) {}
-//                        });
-//                    }
-//
-//                    @NonNull
-//                    @Override
-//                    public ProfileFragment.FindEventHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-//                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.each_search_event_result_layout, parent, false);
-//                        ProfileFragment.FindEventHolder viewHolder = new ProfileFragment.FindEventHolder(view);
-//                        return viewHolder;
-//                    }
-//                };
-//        recyclerViewJoinedEvents.setAdapter(firebaseAdapter);
-//        firebaseAdapter.startListening();
-//    }
-//
-//    protected static class FindEventHolder extends RecyclerView.ViewHolder {
-//        private TextView txtSearchEventName, txtSearchEventDescription;
-//        private CircleImageView civSearchEventImage;
-//
-//        public FindEventHolder(@NonNull View itemView) {
-//            super(itemView);
-//
-//            txtSearchEventName = itemView.findViewById(R.id.txtSearchEventName);
-//            txtSearchEventDescription = itemView.findViewById(R.id.txtSearchEventDescription);
-//            civSearchEventImage = itemView.findViewById(R.id.civSearchEventImage);
-//        }
+        FirebaseRecyclerOptions<Event> options = new FirebaseRecyclerOptions.Builder<Event>()
+                .setQuery(eventsRef, Event.class)
+                .build();
+
+        FirebaseRecyclerAdapter<Event, ClickUserAcitivity.FindEventHolder> firebaseAdapter =
+                new FirebaseRecyclerAdapter<Event, ClickUserAcitivity.FindEventHolder>(options) {
+                    @Override
+                    protected void onBindViewHolder(@NonNull ClickUserAcitivity.FindEventHolder holder, int position, @NonNull Event model) {
+
+                        final String clickedEventId = getRef(position).getKey();
+
+
+                        joinedEventsRef.child(clickedEventId).addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                                if (snapshot.exists()) {
+                                    if (snapshot.hasChild(userProfileID)) {
+
+                                        ArrayList<String> allImagesUri = model.getImgUri_list();
+                                        Picasso.get().load(allImagesUri.get(0)).into(holder.civSearchEventImage);
+
+                                        holder.itemView.setVisibility(View.VISIBLE);
+
+                                        holder.txtSearchEventName.setText(model.getEvent_name());
+                                        holder.txtSearchEventDescription.setText(model.getDescription());
+
+                                        holder.itemView.setOnClickListener(v -> {
+                                            // changing the activity and send the user ID along with the intent
+                                            Intent clickPostIntent = new Intent(ClickUserAcitivity.this, ClickEventActivity.class);
+                                            clickPostIntent.putExtra("EventKey", clickedEventId);
+                                            startActivity(clickPostIntent);
+                                        });
+                                    } else {
+                                        holder.itemView.setVisibility(View.GONE);
+                                        ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+                                        params.height = 0;
+                                        params.width = 0;
+                                        holder.itemView.setLayoutParams(params);
+                                    }
+                                } else {
+                                    holder.itemView.setVisibility(View.GONE);
+                                    ViewGroup.LayoutParams params = holder.itemView.getLayoutParams();
+                                    params.height = 0;
+                                    params.width = 0;
+                                    holder.itemView.setLayoutParams(params);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull @NotNull DatabaseError error) {}
+                        });
+                    }
+
+                    @NonNull
+                    @Override
+                    public ClickUserAcitivity.FindEventHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+                        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.each_search_event_result_layout, parent, false);
+                        ClickUserAcitivity.FindEventHolder viewHolder = new ClickUserAcitivity.FindEventHolder(view);
+                        return viewHolder;
+                    }
+                };
+        recyclerViewJoinedEvents.setAdapter(firebaseAdapter);
+        firebaseAdapter.startListening();
+    }
+
+    protected static class FindEventHolder extends RecyclerView.ViewHolder {
+        private TextView txtSearchEventName, txtSearchEventDescription;
+        private CircleImageView civSearchEventImage;
+
+        public FindEventHolder(@NonNull View itemView) {
+            super(itemView);
+
+            txtSearchEventName = itemView.findViewById(R.id.txtSearchEventName);
+            txtSearchEventDescription = itemView.findViewById(R.id.txtSearchEventDescription);
+            civSearchEventImage = itemView.findViewById(R.id.civSearchEventImage);
+        }
     }
 
     private void checkFollowingStatus() {
