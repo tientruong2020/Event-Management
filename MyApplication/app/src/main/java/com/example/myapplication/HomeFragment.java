@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +20,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.Adapter.SliderAdapter;
+import com.example.myapplication.ContentApp.AddEventActivity;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -39,6 +43,7 @@ import org.jetbrains.annotations.NotNull;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -54,7 +59,6 @@ public class HomeFragment extends Fragment {
     private static final String TBL_EVENTS = "Events";
     private static final String TBL_LIKES = "Likes";
     private static final String TBL_JOINED_EVENTS = "JoinedEvents";
-
     private final String CHILD_JOINED_DATE = "JoinedDate";
 
     private boolean alreadyLiked = false;   // already like the event or not
@@ -69,6 +73,7 @@ public class HomeFragment extends Fragment {
     private FirebaseUser currentUser;
     private DatabaseReference likesRef;
     private DatabaseReference joinedEventsRef;
+    private DatabaseReference userRef;
 
     public HomeFragment() {
         // required empty constructor
@@ -99,6 +104,7 @@ public class HomeFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
+        userRef = FirebaseDatabase.getInstance().getReference(TBL_USERS);
         likesRef = FirebaseDatabase.getInstance().getReference().child(TBL_LIKES);
         eventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_EVENTS);
         joinedEventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_JOINED_EVENTS);
@@ -366,6 +372,7 @@ public class HomeFragment extends Fragment {
                        joinedEventsRef.child(eventId).child(currentUserId).removeValue()
                                .addOnCompleteListener(task1 -> {
                                    if (task1.isSuccessful()) {
+                                       removeJoinedEventFromProfile(eventId);
                                        Toast.makeText(getActivity(), "Canceled event successfully", Toast.LENGTH_SHORT).show();
                                    } else {
                                        Toast.makeText(getActivity(), "ERROR: You canceled the event, but event still have you", Toast.LENGTH_LONG).show();
@@ -391,6 +398,7 @@ public class HomeFragment extends Fragment {
                 joinedEventsRef.child(eventId).child(currentUserId).child(CHILD_JOINED_DATE)
                         .setValue(dateFormat).addOnCompleteListener(task1 -> {
                     if (task1.isSuccessful()) {
+                        addJoinedEventToProfile(eventId);
                         Toast.makeText(getActivity(), "Joined event successfully",
                                 Toast.LENGTH_SHORT).show();
                     } else {
@@ -414,5 +422,14 @@ public class HomeFragment extends Fragment {
         SimpleDateFormat sdfDate = new SimpleDateFormat("yyyy-MM-dd");
         Date now = new Date();
         return sdfDate.format(now);
+    }
+    private void addJoinedEventToProfile(String eventId){
+        userRef.child(currentUser.getUid()).child("JoinedEvents");
+        HashMap<String, Object> userEventMap = new HashMap<>();
+        userEventMap.put(eventId, "true");
+        userRef.child(currentUser.getUid()).child("JoinedEvents").updateChildren(userEventMap);
+    }
+    private void removeJoinedEventFromProfile(String eventId){
+        userRef.child(currentUser.getUid()).child("JoinedEvents").child(eventId).removeValue();
     }
 }
