@@ -65,11 +65,6 @@ public class MainActivity extends AppCompatActivity {
     private Button toLoginBtn;
     private Button toSignUpBtn;
 
-    // Define JAVA Facebook sign in
-    private LoginButton facebookSignInButton;
-    private CallbackManager mCallbackManager;
-    private static final String TAG = "FacebookAuthentication";
-
     // Define JAVA Google sign in
     private Button googleSignInButton;
     private GoogleSignInClient mGoogleSignInClient;
@@ -77,6 +72,11 @@ public class MainActivity extends AppCompatActivity {
     private String googleUserFullName;
     private String googleUserEmail;
     private String googleUserPhotoUrl;
+
+    // Define JAVA Facebook sign in
+    private LoginButton facebookSignInButton;
+    private CallbackManager mCallbackManager;
+    private static final String TAG = "FacebookAuthentication";
 
     // Define Firebase
     private FirebaseAuth mFirebaseAuth;
