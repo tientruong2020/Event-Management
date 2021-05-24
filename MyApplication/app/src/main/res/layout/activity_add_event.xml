@@ -9,14 +9,14 @@
 
     <ScrollView
         android:id="@+id/scrollView2"
-        android:layout_width="408dp"
-        android:layout_height="722dp"
-        android:layout_marginTop="30dp"
+        android:layout_width="389dp"
+        android:layout_height="652dp"
+        android:layout_marginTop="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/backHomeBtn">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -25,7 +25,7 @@
             <EditText
                 android:id="@+id/eventNameET"
                 android:layout_width="370dp"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:textColor="@color/violent"
@@ -97,7 +97,7 @@
             <EditText
                 android:id="@+id/descriptionET"
                 android:layout_width="370dp"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:textColor="@color/violent"
@@ -137,7 +137,7 @@
             <EditText
                 android:id="@+id/placeET"
                 android:layout_width="370dp"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:ems="10"
                 android:inputType="textPersonName"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -163,7 +163,7 @@
             <EditText
                 android:id="@+id/startDateET"
                 android:layout_width="300dp"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:textColor="@color/violent"
@@ -174,8 +174,8 @@
 
             <Button
                 android:id="@+id/PickerStartDate"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:layout_marginStart="6dp"
                 android:background="@drawable/group_17"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -199,7 +199,7 @@
             <EditText
                 android:id="@+id/endDateET"
                 android:layout_width="300dp"
-                android:layout_height="40dp"
+                android:layout_height="50dp"
                 android:ems="10"
                 android:inputType="textPersonName"
                 android:textColor="@color/violent"
@@ -210,8 +210,8 @@
 
             <Button
                 android:id="@+id/PickerEndDate"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:background="@drawable/group_17"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.588"

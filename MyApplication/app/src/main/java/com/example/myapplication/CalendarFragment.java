@@ -117,6 +117,7 @@ public class CalendarFragment extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 myEventList.clear();
+                eventAdapter.setData(myEventList);
                 myEventsID.clear();
                 for (DataSnapshot postSnapshot: snapshot.getChildren()) {
                     String lastDay;
