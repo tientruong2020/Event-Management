@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.util.Patterns;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -145,20 +146,33 @@ public class AddEventActivity extends AppCompatActivity {
                 endDate = endDateET.getText().toString();
                 limitedNumber = Integer.parseInt(limitNumberET.getText().toString());
 
-                    if(isEmptyField(eventName, description,place,startDate,endDate)){
-                        Toast.makeText(AddEventActivity.this, "eventname"+eventName, Toast.LENGTH_LONG).show();
-                    }
-                try {
-                    if(!checkEndDate(startDate, endDate)){
-                        endDateET.setError("End date is before Start date");
-                        //Toast.makeText(AddEventActivity.this, "End date is before Start date", Toast.LENGTH_LONG).show();
-                    }else {
-                        savePost(eventName, description, place, startDate, endDate, limitedNumber, isOnlineType);
-                    }
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
+                    if(isEmptyField(eventName, description,place,startDate,endDate)) {
+                        Toast.makeText(AddEventActivity.this, "Enter all field before saving Event", Toast.LENGTH_LONG).show();
 
+                    }else {
+                        try {
+                            if (isOnlineType) {
+                                if (!validateWebUrl(place)) {
+                                    placeET.setError("Event Link not matches Web Url");
+                                }
+                                else if (!checkEndDate(startDate, endDate)) {
+                                    endDateET.setError("End date is before Start date");
+                                    //Toast.makeText(AddEventActivity.this, "End date is before Start date", Toast.LENGTH_LONG).show();
+                                } else {
+                                    savePost(eventName, description, place, startDate, endDate, limitedNumber, isOnlineType);
+                                }
+                            }else {
+                                if (!checkEndDate(startDate, endDate)) {
+                                    endDateET.setError("End date is before Start date");
+                                    //Toast.makeText(AddEventActivity.this, "End date is before Start date", Toast.LENGTH_LONG).show();
+                                } else {
+                                    savePost(eventName, description, place, startDate, endDate, limitedNumber, isOnlineType);
+                                }
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
             }
         });
 
@@ -421,5 +435,8 @@ public class AddEventActivity extends AppCompatActivity {
             return false;
         }
         return true;
+    }
+    private boolean validateWebUrl(String webUrl){
+        return Patterns.WEB_URL.matcher(webUrl).matches();
     }
 }
