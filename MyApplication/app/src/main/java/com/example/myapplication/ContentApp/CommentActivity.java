@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -23,7 +22,6 @@ import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,14 +31,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.rengwuxian.materialedittext.MaterialEditText;
 import com.squareup.picasso.Picasso;
 
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class CommemtActivity extends AppCompatActivity {
+public class CommentActivity extends AppCompatActivity {
     private static final String TBL_COMMENT = "Comments";
     private static final String TBL_USERS = "Users";
     private static final String UID = FirebaseAuth.getInstance().getUid();
@@ -66,12 +63,14 @@ public class CommemtActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         rcvComment.setLayoutManager(linearLayoutManager);
         getCommentOfEvent();
+
+
         btnComment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String commentContent = edCommentContent.getText().toString();
                 if(TextUtils.isEmpty(commentContent)){
-                    Toast.makeText(CommemtActivity.this,"Comment is Empty!!!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(CommentActivity.this,"Comment is Empty!!!",Toast.LENGTH_SHORT).show();
                 }else {
                     Date date = new Date();
                     long timestamp = new Timestamp(date.getTime()).getTime();
@@ -85,11 +84,18 @@ public class CommemtActivity extends AppCompatActivity {
                         public void onComplete(@NonNull Task<Void> task) {
                             if(task.isSuccessful()){
                                 edCommentContent.setText("");
-                                Toast.makeText(CommemtActivity.this,"You Added a Comment for this Event!!!",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(CommentActivity.this,"You Added a Comment for this Event!!!",Toast.LENGTH_SHORT).show();
                             }
                         }
                     });
                 }
+            }
+        });
+        btnBackToHome.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(CommentActivity.this, BottomNavbarActivity.class);
+                startActivity(intent);
             }
         });
     }

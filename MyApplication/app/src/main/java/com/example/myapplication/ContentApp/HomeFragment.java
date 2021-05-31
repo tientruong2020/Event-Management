@@ -19,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.Adapter.SliderAdapter;
-import com.example.myapplication.ContentApp.EventDetailActivity;
 import com.example.myapplication.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -257,7 +256,7 @@ public class HomeFragment extends Fragment {
 
                             //User click on comment icon, redirect to Comment Activity
                             holder.ivComment.setOnClickListener(v -> {
-                                Intent intentComent = new Intent(getActivity(), CommemtActivity.class);
+                                Intent intentComent = new Intent(getActivity(), CommentActivity.class);
                                 intentComent.putExtra("EventId", eventKey);
                                 startActivity(intentComent);
                             });
