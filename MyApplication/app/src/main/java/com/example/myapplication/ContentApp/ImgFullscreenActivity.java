@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.ContentApp;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,6 +13,8 @@ import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+
+import com.example.myapplication.R;
 
 import java.io.IOException;
 

@@ -7,7 +7,7 @@
     android:layout_centerHorizontal="true"
     android:background="@drawable/setting_background"
     android:orientation="vertical"
-    tools:context=".OptionActivity">
+    tools:context=".ContentApp.OptionActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/optionToolbar"

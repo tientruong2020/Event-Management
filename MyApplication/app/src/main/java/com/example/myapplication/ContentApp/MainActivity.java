@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.ContentApp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,9 +14,9 @@ import android.widget.Toast;
 
 import com.example.myapplication.Auth.LoginActivity;
 import com.example.myapplication.Auth.SignUpActivity;
-import com.example.myapplication.ContentApp.BottomNavbarActivity;
 
 //google
+import com.example.myapplication.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;

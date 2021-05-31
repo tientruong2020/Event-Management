@@ -1,12 +1,10 @@
-package com.example.myapplication;
+package com.example.myapplication.ContentApp;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -15,11 +13,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.myapplication.Model.Event;
 import com.example.myapplication.Model.User;
+import com.example.myapplication.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -206,7 +204,14 @@ public class ProfileFragment extends Fragment {
                     protected void onBindViewHolder(@NonNull ProfileFragment.FindEventHolder holder, int position, @NonNull Event model) {
 
                         final String clickedEventId = getRef(position).getKey();
+                        boolean enable = model.isEnable();
+                        if(enable == false ){
 
+                            holder.txtSearchEventStatus.setText("Sự kiện đang được hệ thống EMA kiểm duyệt");
+
+                        }else {
+                            holder.txtSearchEventStatus.setVisibility(View.GONE);
+                        }
                         String creatorId = model.getUid();
                         if (creatorId.equals(userProfileID)) {
                             ArrayList<String> allImagesUri = model.getImgUri_list();
@@ -317,7 +322,7 @@ public class ProfileFragment extends Fragment {
      * Modified by Tuan
      */
     protected static class FindEventHolder extends RecyclerView.ViewHolder {
-        private TextView txtSearchEventName, txtSearchEventDescription;
+        private TextView txtSearchEventName, txtSearchEventDescription, txtSearchEventStatus;
         private CircleImageView civSearchEventImage;
 
         public FindEventHolder(@NonNull View itemView) {
@@ -325,6 +330,7 @@ public class ProfileFragment extends Fragment {
 
             txtSearchEventName = itemView.findViewById(R.id.txtSearchEventName);
             txtSearchEventDescription = itemView.findViewById(R.id.txtSearchEventDescription);
+            txtSearchEventStatus = itemView.findViewById(R.id.txtSearchStatus);
             civSearchEventImage = itemView.findViewById(R.id.civSearchEventImage);
         }
     }

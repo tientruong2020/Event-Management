@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.ContentApp.BottomNavbarActivity;
 import com.example.myapplication.Model.User;
-import com.example.myapplication.ProfileFragment;
+import com.example.myapplication.ContentApp.ProfileFragment;
 import com.example.myapplication.R;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;

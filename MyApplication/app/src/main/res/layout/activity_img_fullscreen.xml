@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ImgFullscreenActivity">
+    tools:context=".ContentApp.ImgFullscreenActivity">
     <LinearLayout
         android:background="@color/bgNavigation"
         android:layout_width="match_parent"

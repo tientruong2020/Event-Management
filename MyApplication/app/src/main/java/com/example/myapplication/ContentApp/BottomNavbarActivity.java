@@ -8,14 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.Button;
 
-import com.example.myapplication.CalendarFragment;
-import com.example.myapplication.HomeFragment;
-import com.example.myapplication.MainActivity;
-import com.example.myapplication.ProfileFragment;
 import com.example.myapplication.R;
-import com.example.myapplication.SearchFragment;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 

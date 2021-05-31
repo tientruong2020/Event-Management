@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.ContentApp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,28 +11,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.example.myapplication.Adapter.SliderAdapter;
 import com.example.myapplication.Model.Event;
 import com.example.myapplication.Model.User;
+import com.example.myapplication.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.smarteist.autoimageslider.SliderView;
 import com.squareup.picasso.Picasso;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -181,7 +177,14 @@ public class ClickUserAcitivity extends AppCompatActivity {
                     protected void onBindViewHolder(@NonNull ClickUserAcitivity.FindEventHolder holder, int position, @NonNull Event model) {
 
                         final String clickedEventId = getRef(position).getKey();
+                        boolean enable = model.isEnable();
+                        if(enable == false ){
 
+                            holder.txtSearchEventStatus.setText("Sự kiện đang được hệ thống EMA kiểm duyệt");
+
+                        }else {
+                            holder.txtSearchEventStatus.setVisibility(View.GONE);
+                        }
                         String creatorId = model.getUid();
                         if (creatorId.equals(userProfileID)) {
                             ArrayList<String> allImagesUri = model.getImgUri_list();
@@ -286,7 +289,7 @@ public class ClickUserAcitivity extends AppCompatActivity {
     }
 
     protected static class FindEventHolder extends RecyclerView.ViewHolder {
-        private TextView txtSearchEventName, txtSearchEventDescription;
+        private TextView txtSearchEventName, txtSearchEventDescription, txtSearchEventStatus;
         private CircleImageView civSearchEventImage;
 
         public FindEventHolder(@NonNull View itemView) {
@@ -294,6 +297,7 @@ public class ClickUserAcitivity extends AppCompatActivity {
 
             txtSearchEventName = itemView.findViewById(R.id.txtSearchEventName);
             txtSearchEventDescription = itemView.findViewById(R.id.txtSearchEventDescription);
+            txtSearchEventStatus = itemView.findViewById(R.id.txtSearchStatus);
             civSearchEventImage = itemView.findViewById(R.id.civSearchEventImage);
         }
     }

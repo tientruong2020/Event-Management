@@ -1,33 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/showEventLayout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_marginStart="5dp"
     android:layout_marginTop="10dp"
     android:layout_marginEnd="5dp"
     android:orientation="vertical">
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:cardCornerRadius="15dp"
-        app:cardElevation="10dp"
-        android:layout_margin="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/civSearchEventImage"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:id="@+id/civComentUserImage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_marginStart="5dp"
                 android:layout_marginTop="5dp"
                 android:layout_marginEnd="5dp" />
-
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="10dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -35,35 +32,35 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/txtSearchEventName"
+                    android:id="@+id/txtCommentedUserFullName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
                     android:layout_marginEnd="5dp"
                     android:layout_marginBottom="5dp"
-                    android:text="Tieu de" />
+                    android:text="User full name"
+                    android:textSize="16sp" />
 
                 <TextView
-                    android:id="@+id/txtSearchEventDescription"
+                    android:id="@+id/txtCommentedContent"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="5dp"
-                    android:text="Mo ta su kien"
+                    android:minLines="2"
+                    android:text="Content"
+                    android:textSize="16sp" />
 
-                    android:minLines="2"/>
                 <TextView
-                    android:id="@+id/txtSearchStatus"
+                    android:id="@+id/txtCommentedTime"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="5dp"
-                    android:text=""
-                    android:textColor="@color/warning"
-                    android:minLines="2"/>
+                    android:minLines="2"
+                    android:text="Time" />
             </LinearLayout>
-
+            </androidx.cardview.widget.CardView>
         </LinearLayout>
 
 
-    </androidx.cardview.widget.CardView>
 
 </LinearLayout>

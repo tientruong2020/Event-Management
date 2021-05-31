@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:layout_margin="5dp"
     android:background="@drawable/events_with_border"
-    tools:context=".EventDetailActivity">
+    tools:context=".ContentApp.EventDetailActivity">
 
     <ScrollView
         android:layout_width="match_parent"

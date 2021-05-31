@@ -13,11 +13,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
-        <activity android:name=".ClickUserAcitivity" />
-        <activity android:name=".ClickEventActivity" />
-        <activity android:name=".EventDetailActivity" />
-        <activity android:name=".ImgFullscreenActivity" />
-        <activity android:name=".OptionActivity" />
+        <activity android:name=".ContentApp.CommemtActivity"
+            android:windowSoftInputMode="stateHidden|adjustPan">
+        </activity>
+        <activity android:name=".ContentApp.ClickUserAcitivity" />
+        <activity android:name=".ContentApp.ClickEventActivity" />
+        <activity android:name=".ContentApp.EventDetailActivity" />
+        <activity android:name=".ContentApp.ImgFullscreenActivity" />
+        <activity android:name=".ContentApp.OptionActivity" />
         <activity
             android:name=".ContentApp.AddEventActivity"
             android:windowSoftInputMode="stateHidden|adjustPan" />
@@ -26,8 +29,8 @@
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity android:name=".Auth.SignUpActivity" />
         <activity android:name=".Auth.LoginActivity" />
-        <activity android:name=".EditProfileActivity" />
-        <activity android:name=".MainActivity">
+        <activity android:name=".ContentApp.EditProfileActivity" />
+        <activity android:name=".ContentApp.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

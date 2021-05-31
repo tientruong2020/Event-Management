@@ -91,12 +91,21 @@
             app:srcCompat="@drawable/join_event_icon" />
 
         <ImageView
+            android:id="@+id/ivComment"
+            android:layout_width="35dp"
+            android:layout_height="30dp"
+            android:layout_marginStart="10dp"
+            android:clickable="true"
+            app:srcCompat="@drawable/icons8_comments_64" />
+
+        <ImageView
             android:id="@+id/ivEventLocation"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginStart="10dp"
             android:clickable="true"
             app:srcCompat="@drawable/location_icon" />
+
     </LinearLayout>
 
     <TextView

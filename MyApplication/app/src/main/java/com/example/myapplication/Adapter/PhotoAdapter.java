@@ -1,24 +1,19 @@
 package com.example.myapplication.Adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.myapplication.ContentApp.AddEventActivity;
-import com.example.myapplication.ImgFullscreenActivity;
 import com.example.myapplication.R;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.io.IOException;
 import java.util.List;

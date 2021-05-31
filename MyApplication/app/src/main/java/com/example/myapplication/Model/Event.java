@@ -9,19 +9,21 @@ import java.util.ArrayList;
  */
 public class Event {
 
-    private long Limit, createAt;
-    private boolean isOnline;
+    private long Limit, createdAt;
+    private boolean isOnline, enable;
     private String description, end_date, event_name, place, start_date, uid;
     private ArrayList<String> ImgUri_list;
 
     public Event() {
     }
 
-    public Event(ArrayList<String> ImgUri_list, long limit, long createAt, boolean isOnline, String description, String end_date,
-                 String event_name, String place, String start_date, String uid) {
+
+    public Event(ArrayList<String> ImgUri_list, long limit, long createdAt,  String description,  boolean enable, String end_date,
+                 String event_name,boolean isOnline, String place, String start_date, String uid) {
         Limit = limit;
-        this.createAt = createAt;
+        this.createdAt = createdAt;
         this.isOnline = isOnline;
+        this.enable = enable;
         this.description = description;
         this.end_date = end_date;
         this.event_name = event_name;
@@ -31,6 +33,13 @@ public class Event {
         this.ImgUri_list = ImgUri_list;
     }
 
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public void setEnable(boolean enable) {
+        this.enable = enable;
+    }
     public long getLimit() {
         return Limit;
     }
@@ -40,11 +49,11 @@ public class Event {
     }
 
     public long getCreateAt() {
-        return createAt;
+        return createdAt;
     }
 
     public void setCreateAt(long createAt) {
-        this.createAt = createAt;
+        this.createdAt = createAt;
     }
 
     public boolean getIsOnline() {

@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.ContentApp;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -11,7 +11,6 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,11 +19,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.Adapter.SliderAdapter;
-import com.example.myapplication.ContentApp.AddEventActivity;
+import com.example.myapplication.ContentApp.EventDetailActivity;
+import com.example.myapplication.R;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -44,7 +42,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -122,12 +119,10 @@ public class HomeFragment extends Fragment {
     }
 
     private void displayAllEvents() {
-        Query sortEventsInDescendingOrder = eventsRef.orderByChild("createdAt"); // newest first
-
+        Query sortEventsInDescendingOrder = eventsRef.orderByChild("enable").equalTo(true);
         FirebaseRecyclerOptions<Event> options = new FirebaseRecyclerOptions.Builder<Event>()
                 .setQuery(sortEventsInDescendingOrder, Event.class)
                 .build();
-
         FirebaseRecyclerAdapter<Event, EventsViewHolder> firebaseRecyclerAdapter =
                 new FirebaseRecyclerAdapter<Event, EventsViewHolder>(options) {
                     @Override
@@ -136,140 +131,152 @@ public class HomeFragment extends Fragment {
 
                         // get the event ID
                         final String eventKey = getRef(position).getKey();
+                        boolean enable = model.isEnable();
 
-                        // get user UID
-                        String uid = model.getUid();
-                        DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child(TBL_USERS).child(uid);
+                            // get user UID
+                            String uid = model.getUid();
+                            DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child(TBL_USERS).child(uid);
 
-                        // get user profile image, full name and bio
-                        usersRef.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                                String userProfileImage = snapshot.child("userImageUrl").getValue().toString();
-                                String userBio = snapshot.child("userBio").getValue().toString();
-                                String userFullName = snapshot.child("userFullName").getValue().toString();
-
-                                Picasso.get().load(userProfileImage).into(holder.civUserProfileImage);
-                                holder.txtUserFullName.setText(userFullName);
-                                holder.txtUserBio.setText(userBio);
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull @NotNull DatabaseError error) {}
-                        });
-
-                        // get all event attributes
-                        String eventDescription = model.getDescription();
-                        String eventStartDate = model.getStart_date();
-                        String eventEndDate = model.getEnd_date();
-                        String eventName = model.getEvent_name();
-                        String eventPlace = model.getPlace();
-                        boolean isEventOnline = model.getIsOnline();
-                        long eventLimit = model.getLimit();
-                        // end getting al event's attributes
-
-                        // display a list of event's images
-                        eventsRef.child(eventKey).child("ImgUri_list").addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
-                                ArrayList<String> allImagesUri = (ArrayList<String>) snapshot.getValue();
-                                holder.sliderView.setSliderAdapter(new SliderAdapter(allImagesUri));
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull @NotNull DatabaseError error) {}
-                        });
-
-                        // event name
-                        holder.txtEventName.setText(eventName);
-
-                        // event start and end date
-                        String[] splitStartString = eventStartDate.split(" ");
-                        String[] splitEndString = eventEndDate.split(" ");
-
-                        String startDate = splitStartString[1] + " " + getResources().getString(R.string.date) + " " + splitStartString[0];
-                        String endDate = splitEndString[1] + " "  + getResources().getString(R.string.date) + " " + splitEndString[0];
-
-                        holder.txtEventStartDate.setText(startDate);
-                        holder.txtEventEndDate.setText(endDate);
-
-                        // event place
-                        holder.txtEventPlace.setText(eventPlace);
-
-                        // set the like button
-                        holder.setLikeButtonStatus(eventKey);
-
-                        // if user unlike an event, then delete the corresponding row in Firebase
-                        // database
-                        holder.ivDropLike.setOnClickListener(v -> {
-                            alreadyLiked = true;
-
-                            likesRef.addValueEventListener(new ValueEventListener() {
+                            // get user profile image, full name and bio
+                            usersRef.addValueEventListener(new ValueEventListener() {
                                 @Override
-                                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                    if (alreadyLiked) {
-                                        if (snapshot.child(eventKey).hasChild(currentUser.getUid())) {
-                                            // if user has already liked this post, then he must be
-                                            // unlike it this time, so remove the user who liked it.
-                                            likesRef.child(eventKey).child(currentUser.getUid()).removeValue();
-                                        } else {
-                                            // if user like the post
-                                            likesRef.child(eventKey).child(currentUser.getUid()).setValue("liked");
-                                        }
-                                        alreadyLiked = false;
-                                    }
+                                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                                    String userProfileImage = snapshot.child("userImageUrl").getValue().toString();
+                                    String userBio = snapshot.child("userBio").getValue().toString();
+                                    String userFullName = snapshot.child("userFullName").getValue().toString();
+
+                                    Picasso.get().load(userProfileImage).into(holder.civUserProfileImage);
+                                    holder.txtUserFullName.setText(userFullName);
+                                    holder.txtUserBio.setText(userBio);
                                 }
 
                                 @Override
-                                public void onCancelled(@NonNull DatabaseError error) {}
+                                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+                                }
                             });
-                        });
 
-                        // set the join button
-                        holder.setJoinEventButtonStatus(currentUser.getUid(), eventKey);
+                            // get all event attributes
+                            String eventDescription = model.getDescription();
+                            String eventStartDate = model.getStart_date();
+                            String eventEndDate = model.getEnd_date();
+                            String eventName = model.getEvent_name();
+                            String eventPlace = model.getPlace();
+                            boolean isEventOnline = model.getIsOnline();
+                            long eventLimit = model.getLimit();
+                            // end getting al event's attributes
 
-                        // user click the "join event" button
-                        holder.ivJoinEvent.setOnClickListener(v -> {
+                            // display a list of event's images
+                            eventsRef.child(eventKey).child("ImgUri_list").addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                                    ArrayList<String> allImagesUri = (ArrayList<String>) snapshot.getValue();
+                                    holder.sliderView.setSliderAdapter(new SliderAdapter(allImagesUri));
+                                }
 
-                            if (holder.isAlreadyJoinedEvent) {
-                                // user has already joined that event, if user click
-                                // "join event" button again, it means user wants to
-                                // cancel that event.
+                                @Override
+                                public void onCancelled(@NonNull @NotNull DatabaseError error) {
+                                }
+                            });
 
-                                cancelJoiningEvent(currentUser.getUid(), eventKey);
-                            } else {
-                                // let user join the event
-                                joinEvent(currentUser.getUid(), eventKey);
-                            }
-                        });
+                            // event name
+                            holder.txtEventName.setText(eventName);
 
-                        // redirect user to google map if the event is offline, redirect user to
-                        // web browser if event is online
-                        holder.ivEventLocation.setOnClickListener(v -> {
+                            // event start and end date
+                            String[] splitStartString = eventStartDate.split(" ");
+                            String[] splitEndString = eventEndDate.split(" ");
 
-                            if (isEventOnline) {
-                                // TODO: có nên cho sang trình duyệt không?
-                                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(model.getPlace())));
-                            } else {
-                                startActivity(new Intent(Intent.ACTION_VIEW,
-                                        Uri.parse("geo:0,0?q=" + model.getPlace())));
-                            }
-                        });
+                            String startDate = splitStartString[1] + " " + getResources().getString(R.string.date) + " " + splitStartString[0];
+                            String endDate = splitEndString[1] + " " + getResources().getString(R.string.date) + " " + splitEndString[0];
 
-                        // user click on an event, redirect to EventDetailActivity
-                        holder.itemView.setOnClickListener(v -> {
-                            Intent eventDetail = new Intent(getActivity(), EventDetailActivity.class);
-                            eventDetail.putExtra("EventId", eventKey);
-                            eventDetail.putExtra("EventLimit", eventLimit);
-                            eventDetail.putExtra("EventDescription", eventDescription);
-                            eventDetail.putExtra("EventEndDate", eventEndDate);
-                            eventDetail.putExtra("EventName", eventName);
-                            eventDetail.putExtra("EventIsOnline", isEventOnline);
-                            eventDetail.putExtra("EventPlace", eventPlace);
-                            eventDetail.putExtra("EventStartDate", eventStartDate);
-                            eventDetail.putExtra("uid", uid);
-                            startActivity(eventDetail);
-                        });
+                            holder.txtEventStartDate.setText(startDate);
+                            holder.txtEventEndDate.setText(endDate);
+
+                            // event place
+                            holder.txtEventPlace.setText(eventPlace);
+
+                            // set the like button
+                            holder.setLikeButtonStatus(eventKey);
+
+                            // if user unlike an event, then delete the corresponding row in Firebase
+                            // database
+                            holder.ivDropLike.setOnClickListener(v -> {
+                                alreadyLiked = true;
+
+                                likesRef.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        if (alreadyLiked) {
+                                            if (snapshot.child(eventKey).hasChild(currentUser.getUid())) {
+                                                // if user has already liked this post, then he must be
+                                                // unlike it this time, so remove the user who liked it.
+                                                likesRef.child(eventKey).child(currentUser.getUid()).removeValue();
+                                            } else {
+                                                // if user like the post
+                                                likesRef.child(eventKey).child(currentUser.getUid()).setValue("liked");
+                                            }
+                                            alreadyLiked = false;
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                    }
+                                });
+                            });
+
+                            // set the join button
+                            holder.setJoinEventButtonStatus(currentUser.getUid(), eventKey);
+
+                            // user click the "join event" button
+                            holder.ivJoinEvent.setOnClickListener(v -> {
+
+                                if (holder.isAlreadyJoinedEvent) {
+                                    // user has already joined that event, if user click
+                                    // "join event" button again, it means user wants to
+                                    // cancel that event.
+
+                                    cancelJoiningEvent(currentUser.getUid(), eventKey);
+                                } else {
+                                    // let user join the event
+                                    joinEvent(currentUser.getUid(), eventKey);
+                                }
+                            });
+
+                            // redirect user to google map if the event is offline, redirect user to
+                            // web browser if event is online
+                            holder.ivEventLocation.setOnClickListener(v -> {
+
+                                if (isEventOnline) {
+                                    // TODO: có nên cho sang trình duyệt không?
+                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(model.getPlace())));
+                                } else {
+                                    startActivity(new Intent(Intent.ACTION_VIEW,
+                                            Uri.parse("geo:0,0?q=" + model.getPlace())));
+                                }
+                            });
+
+                            //User click on comment icon, redirect to Comment Activity
+                            holder.ivComment.setOnClickListener(v -> {
+                                Intent intentComent = new Intent(getActivity(), CommemtActivity.class);
+                                intentComent.putExtra("EventId", eventKey);
+                                startActivity(intentComent);
+                            });
+
+                            // user click on an event, redirect to EventDetailActivity
+                            holder.itemView.setOnClickListener(v -> {
+                                Intent eventDetail = new Intent(getActivity(), EventDetailActivity.class);
+                                eventDetail.putExtra("EventId", eventKey);
+                                eventDetail.putExtra("EventLimit", eventLimit);
+                                eventDetail.putExtra("EventDescription", eventDescription);
+                                eventDetail.putExtra("EventEndDate", eventEndDate);
+                                eventDetail.putExtra("EventName", eventName);
+                                eventDetail.putExtra("EventIsOnline", isEventOnline);
+                                eventDetail.putExtra("EventPlace", eventPlace);
+                                eventDetail.putExtra("EventStartDate", eventStartDate);
+                                eventDetail.putExtra("uid", uid);
+                                startActivity(eventDetail);
+                            });
+
                     }
 
                     @NonNull
@@ -287,9 +294,8 @@ public class HomeFragment extends Fragment {
     protected static class EventsViewHolder extends RecyclerView.ViewHolder {
         private CircleImageView civUserProfileImage;
         private TextView txtUserFullName, txtUserBio, txtEventName, txtEventStartDate, txtEventEndDate, txtEventPlace;
-        private ImageView ivDropLike, ivJoinEvent, ivEventLocation;
+        private ImageView ivDropLike, ivJoinEvent, ivEventLocation, ivComment;
         private SliderView sliderView;
-
         private boolean isAlreadyJoinedEvent;
 
         String currentUserId;
@@ -310,7 +316,7 @@ public class HomeFragment extends Fragment {
             ivJoinEvent = itemView.findViewById(R.id.ivJoinEvent);
             ivEventLocation = itemView.findViewById(R.id.ivEventLocation);
             sliderView = itemView.findViewById(R.id.imageSlider);
-
+            ivComment = itemView.findViewById(R.id.ivComment);
             currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
             localLikesRef = FirebaseDatabase.getInstance().getReference().child(TBL_LIKES);
             localJoinedEventsRef = FirebaseDatabase.getInstance().getReference().child(TBL_JOINED_EVENTS);

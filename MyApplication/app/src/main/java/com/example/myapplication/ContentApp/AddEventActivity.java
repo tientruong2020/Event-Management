@@ -34,7 +34,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.Adapter.PhotoAdapter;
-import com.example.myapplication.ImgFullscreenActivity;
 import com.example.myapplication.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -373,6 +372,7 @@ public class AddEventActivity extends AppCompatActivity {
         dataMap.put("isOnline",isOnlineEventType);
         dataMap.put("ImgUri_list", firebaseUriList);
         dataMap.put("createdAt",timestamp);
+        dataMap.put("enable",true);
         String eventId = UUID.randomUUID().toString();
         mDatabase.child(TBL_EVENTS).child(eventId).setValue(dataMap).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
